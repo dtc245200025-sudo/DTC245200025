@@ -1,0 +1,19 @@
+FROM python:3.12-slim-bookworm
+WORKDIR /checks
+RUN pip install --no-cache-dir 'python-socketio[client]==5.17.0' 'Pillow==12.3.0'
+COPY verify_live_chat.py ./
+COPY verify_saved_history.py ./
+COPY verify_profile_live.py ./
+COPY verify_rooms_live.py ./
+COPY verify_rooms_persistence.py ./
+COPY verify_friends_live.py ./
+COPY verify_friends_persistence.py ./
+COPY verify_direct_live.py ./
+COPY verify_direct_persistence.py ./
+COPY verify_messages_live.py ./
+COPY verify_messages_persistence.py ./
+COPY verify_notifications_live.py ./
+COPY verify_nginx_live.py ./
+COPY verify_nginx_persistence.py ./
+USER 10001:10001
+CMD ["python", "-u", "verify_live_chat.py"]

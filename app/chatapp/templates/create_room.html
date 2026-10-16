@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Tạo phòng Chat{% endblock %}
+{% block body_class %}rooms-page{% endblock %}
+{% block content %}
+<section class="card room-form-card">
+  <p class="eyebrow">KHÔNG GIAN CỦA BẠN</p>
+  <h1>Tạo phòng Chat</h1>
+  <p class="muted">Chọn cách mọi người tham gia. Bạn sẽ là chủ phòng.</p>
+  <form method="post" id="room-create-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Tên phòng<input name="name" required minlength="2" maxlength="100" value="{{ request.form.get('name', '') }}" placeholder="Ví dụ: Góc học tập của Linh"></label>
+    <label>Trạng thái<select name="visibility" id="room-visibility"><option value="public" {% if request.form.get('visibility', 'public') == 'public' %}selected{% endif %}>Public · Công khai</option><option value="private" {% if request.form.get('visibility') == 'private' %}selected{% endif %}>Private · Riêng tư</option></select></label>
+    <div id="room-public-fields" class="room-option-box">
+      <label>Giới hạn người tham gia<input type="number" name="max_members" min="2" max="500" required value="{{ request.form.get('max_members', '50') }}"></label>
+      <small>Từ 2 đến 500 người, tính cả bạn. Khi đủ người, phòng sẽ không nhận thêm thành viên.</small>
+    </div>
+    <div id="room-private-fields" class="room-option-box" hidden>
+      <label>Cách tham gia phòng riêng<select name="join_mode" id="room-join-mode" disabled>{% for value, label in [('approval','Chủ phòng phê duyệt'),('password','Nhập mật khẩu phòng'),('invite','Truy cập bằng link mời')] %}<option value="{{ value }}" {% if request.form.get('join_mode','approval') == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+      <p class="muted" id="room-mode-description"></p>
+      <label id="room-password-label" hidden>Mật khẩu phòng<input type="password" name="room_password" minlength="8" maxlength="128" autocomplete="new-password" disabled><small>Dài 8–128 ký tự, không dùng lại mật khẩu tài khoản.</small></label>
+    </div>
+    <button>Tạo và tham gia</button>
+  </form>
+  <p><a href="{{ url_for('web.search_rooms') }}">Tìm phòng có sẵn</a></p>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='rooms.js', v='32') }}"></script>{% endblock %}

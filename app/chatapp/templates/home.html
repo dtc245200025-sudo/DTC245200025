@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Trang chủ{% endblock %}
+{% block content %}
+<section class="welcome">
+  <p class="eyebrow">KẾT NỐI VÀ CHIA SẺ</p>
+  <h1>Xin chào đến với <span>LinhChat</span>, hãy bắt đầu tạo phòng chat hoặc tham gia phòng chat nhé!</h1>
+  <div class="choice-grid">
+    <a class="card choice-card" href="{{ url_for('web.create_room') }}">
+      <span class="choice-icon" aria-hidden="true">＋</span>
+      <h2>Tạo phòng Chat</h2><p>Tạo không gian trò chuyện của bạn và mời mọi người cùng tham gia.</p>
+      <span class="choice-link">Bắt đầu tạo phòng →</span>
+    </a>
+    <a class="card choice-card" href="{{ url_for('web.search_rooms') }}">
+      <span class="choice-icon" aria-hidden="true">⌕</span>
+      <h2>Tìm kiếm phòng Chat</h2><p>Tìm một phòng để gặp gỡ, kết nối và trò chuyện cùng mọi người.</p>
+      <span class="choice-link">Khám phá phòng chat →</span>
+    </a>
+  </div>
+</section>
+{% endblock %}

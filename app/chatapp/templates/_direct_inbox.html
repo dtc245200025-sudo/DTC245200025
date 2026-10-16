@@ -1,0 +1,9 @@
+{% from "_profile_macros.html" import avatar, presence %}
+{% for thread, user, latest in inbox %}
+<a class="direct-thread {% if conversation and conversation.id == thread.id %}is-current{% endif %}" href="{{ url_for('direct.chat', conversation_id=thread.id) }}" data-direct-thread="{{ thread.id }}">
+  {{ avatar(user, 'avatar-medium', user.profile_public) }}
+  <span class="direct-thread-info"><strong>{{ user.label if user.profile_public else user.username }}</strong><small>{{ (latest.content or 'Tệp đính kèm') if latest else 'Bắt đầu cuộc trò chuyện' }}</small>{{ presence(user.id, is_online(user.id)) }}</span>
+  <span class="nav-count" data-unread-direct="{{ thread.id }}" {% if not unread.directs.get(thread.id) %}hidden{% endif %} aria-label="Tin chưa đọc">{{ unread.directs.get(thread.id, 0) }}</span>
+</a>
+{% else %}<p class="muted direct-empty-list">Chưa có cuộc trò chuyện. Vào Bạn bè và bấm Nhắn tin để bắt đầu nhé.</p>{% endfor %}
+{% if inbox|length == 100 %}<p class="muted">Hiển thị 100 cuộc trò chuyện gần đây.</p>{% endif %}

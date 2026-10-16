@@ -1,0 +1,36 @@
+{% from "_profile_macros.html" import avatar, presence %}
+{% macro action_button(user, action, text, secondary=false) -%}
+<form method="post" action="{{ url_for('friends.change', other_id=user.id, action=action) }}" {% if action == 'remove' %}data-remove-friend{% endif %}><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="{{ 'secondary' if secondary else '' }}">{{ text }}</button></form>
+{%- endmacro %}
+{% macro person_card(user, relation, context) -%}
+<article class="friend-card card" data-friend-user="{{ user.id }}">
+  <div class="friend-identity"><a href="{{ url_for('profiles.user_profile', user_id=user.id) }}" class="friend-avatar" aria-label="Xem hồ sơ @{{ user.username }}">{{ avatar(user, 'avatar-medium', user.profile_public) }}</a><div><h3><a href="{{ url_for('profiles.user_profile', user_id=user.id) }}">{{ user.label if user.profile_public else user.username }}</a></h3><p class="muted">@{{ user.username }}</p>{{ presence(user.id, is_online(user.id)) }}{% if user.profile_public and user.email_public and user.email %}<p class="friend-email muted">{{ user.email }}</p>{% endif %}</div></div>
+  <div class="friend-actions">
+  {% if relation and relation.status == 'accepted' %}<span class="friend-state">Bạn bè</span><form method="post" action="{{ url_for('direct.start', other_id=user.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button>Nhắn tin</button></form>{{ action_button(user, 'remove', 'Hủy kết bạn', true) }}
+  {% elif relation and relation.status == 'pending' %}
+    {% if relation.requester_id == current_user.id %}<span class="muted">Đã gửi lời mời</span>{{ action_button(user, 'cancel', 'Thu hồi', true) }}
+    {% else %}{{ action_button(user, 'accept', 'Chấp nhận') }}{{ action_button(user, 'decline', 'Từ chối', true) }}{% endif %}
+  {% else %}{{ action_button(user, 'request', 'Kết bạn') }}{% endif %}
+  </div>
+</article>
+{%- endmacro %}
+<nav class="friend-tabs" aria-label="Các mục bạn bè">
+  <a href="{{ url_for('friends.index') }}" {% if view == 'friends' %}aria-current="page"{% endif %}>Bạn bè <span>{{ total_friends }}</span></a>
+  <a href="{{ url_for('friends.index', view='requests') }}" {% if view == 'requests' %}aria-current="page"{% endif %}>Lời mời <span>{{ pending_count }}</span></a>
+  <a href="{{ url_for('friends.index', view='search') }}" {% if view == 'search' %}aria-current="page"{% endif %}>Tìm kiếm</a>
+</nav>
+{% if view == 'friends' %}
+<div class="friend-section-heading"><h2>Bạn bè của bạn</h2><span class="muted">{{ total_friends }} người</span></div>
+<div class="friend-grid">{% for user, relation in accepted %}{{ person_card(user, relation, 'accepted') }}{% else %}<div class="card friend-empty"><h3>Bắt đầu một kết nối mới</h3><p class="muted">Bạn chưa có bạn bè. Nhập tên hoặc email phía trên để gửi lời mời nhé.</p></div>{% endfor %}</div>
+{% if total_friends > 100 %}<p class="muted">Đang hiển thị 100 bạn gần đây. Dùng thanh tìm kiếm để tìm người cụ thể.</p>{% endif %}
+{% elif view == 'requests' %}
+<div class="friend-section-heading"><h2>Lời mời đã nhận</h2><span class="muted">{{ pending_count }} đang chờ</span></div>
+<div class="friend-grid">{% for user, relation in incoming %}{{ person_card(user, relation, 'incoming') }}{% else %}<p class="card friend-empty muted">Bạn chưa có lời mời mới.</p>{% endfor %}</div>
+<div class="friend-section-heading"><h2>Lời mời đã gửi</h2></div>
+<div class="friend-grid">{% for user, relation in outgoing %}{{ person_card(user, relation, 'outgoing') }}{% else %}<p class="card friend-empty muted">Bạn chưa gửi lời mời nào.</p>{% endfor %}</div>
+<p class="muted friend-limit-note">Mỗi danh sách hiển thị tối đa 100 lời mời gần đây.</p>
+{% else %}
+<div class="friend-section-heading"><h2>Kết quả tìm kiếm</h2></div>
+<div class="friend-grid">{% for user, relation in results %}{{ person_card(user, relation, 'search') }}{% else %}<div class="card friend-empty"><h3>{{ 'Không tìm thấy người phù hợp' if query else 'Bạn muốn kết nối với ai?' }}</h3><p class="muted">{{ 'Thử kiểm tra tên hoặc nhập chính xác email đầy đủ.' if query else 'Nhập tên hoặc email vào thanh tìm kiếm phía trên.' }}</p></div>{% endfor %}</div>
+{% if results|length == 50 %}<p class="muted">Hiển thị tối đa 50 kết quả. Nhập tên cụ thể hơn để thu hẹp.</p>{% endif %}
+{% endif %}

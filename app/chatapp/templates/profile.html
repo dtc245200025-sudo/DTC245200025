@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "_profile_macros.html" import avatar, presence %}
+{% block title %}{{ 'Hồ sơ cá nhân' if own_profile else 'Hồ sơ người dùng' }}{% endblock %}
+{% block body_class %}profile-page{% endblock %}
+{% block content %}
+<section class="profile-shell card">
+  <div class="profile-heading"><h1>{{ 'Hồ sơ cá nhân' if own_profile else 'Hồ sơ người dùng' }}</h1><a class="profile-close" href="{{ url_for('web.rooms') }}" aria-label="Đóng hồ sơ">×</a></div>
+  <div class="profile-hero">
+    {{ avatar(profile_user, 'avatar-large', can_view_profile) }}
+    <div class="profile-identity"><h2>{{ profile_user.label if can_view_profile else profile_user.username }}</h2><p>@{{ profile_user.username }}</p>
+      {% if can_view_profile %}{{ presence(profile_user.id, is_online(profile_user.id)) }}{% else %}<span class="muted">Hồ sơ riêng tư</span>{% endif %}
+    </div>
+    {% if own_profile %}
+    <form method="post" enctype="multipart/form-data" action="{{ url_for('profiles.upload_avatar') }}" class="avatar-form" id="avatar-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input class="visually-hidden" type="file" id="avatar-input" name="avatar" accept="image/jpeg,image/png,image/webp">
+      <button type="button" class="camera-button" data-avatar-picker aria-label="Thay đổi avatar" title="Thay đổi avatar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h4l2-3h4l2 3h4v15H4z"/><circle cx="12" cy="13" r="4"/></svg></button>
+    </form>
+    {% endif %}
+  </div>
+  <p id="avatar-error" class="form-error" role="alert"></p>
+  {% if own_profile %}
+  <div class="profile-tabs" role="tablist" aria-label="Các mục hồ sơ">
+    <button type="button" role="tab" id="tab-info" aria-controls="panel-info" aria-selected="{{ 'true' if active_tab == 'info' else 'false' }}" data-profile-tab="info">Thông tin cá nhân</button>
+    <button type="button" role="tab" id="tab-security" aria-controls="panel-security" aria-selected="{{ 'true' if active_tab == 'security' else 'false' }}" data-profile-tab="security">Bảo mật</button>
+  </div>
+  <div id="panel-info" role="tabpanel" aria-labelledby="tab-info" {% if active_tab != 'info' %}hidden{% endif %}>
+    <form method="post" class="profile-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Tên hiển thị<input name="display_name" required maxlength="80" value="{{ request.form.get('display_name', profile_user.label) }}" autocomplete="nickname"></label>
+      <label>Username <span class="locked-field"><input name="username" value="{{ profile_user.username }}" readonly aria-readonly="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><small>Dùng để đăng nhập, không thể chỉnh sửa.</small></label>
+      <label>Giới thiệu<textarea name="bio" id="profile-bio" maxlength="150" rows="3" placeholder="Một vài điều về bạn...">{{ request.form.get('bio', profile_user.bio) }}</textarea><small class="bio-counter"><span id="bio-count">{{ profile_user.bio|length }}</span>/150 ký tự</small></label>
+      <div class="profile-meta"><span>Ngày tham gia: <strong>{{ profile_user.created_at|join_date }}</strong></span><span>Đã tham gia <strong>{{ room_count }}</strong> phòng chat</span></div>
+      <div class="privacy-options">
+        <label class="check-row"><input type="checkbox" name="profile_public" {% if profile_user.profile_public %}checked{% endif %}><span>Hồ sơ công khai<small>Khi tắt, người khác không xem được avatar, email và giới thiệu của bạn.</small></span></label>
+        <label class="check-row"><input type="checkbox" name="email_public" {% if profile_user.email_public %}checked{% endif %}><span>Hiển thị email trên hồ sơ công khai<small>Mặc định email chỉ hiển thị với chính bạn.</small></span></label>
+      </div>
+      <p class="muted">Email: {{ profile_user.email or 'Chưa bổ sung' }} · <a href="{{ url_for('web.account') }}">Cài đặt email</a></p>
+      <div class="form-actions"><a class="button-link secondary" href="{{ url_for('profiles.my_profile') }}">Hủy</a><button>Lưu thay đổi</button></div>
+    </form>
+  </div>
+  <div id="panel-security" role="tabpanel" aria-labelledby="tab-security" {% if active_tab != 'security' %}hidden{% endif %}>
+    <form method="post" action="{{ url_for('profiles.change_password') }}" class="profile-form" data-password-change>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <p class="muted">Dùng mật khẩu mới từ 8 đến 128 ký tự. Cập nhật thành công sẽ yêu cầu đăng nhập lại trên các phiên đang mở.</p>
+      {% for name, label, autocomplete in [('current_password', 'Mật khẩu hiện tại', 'current-password'), ('new_password', 'Mật khẩu mới', 'new-password'), ('password_confirmation', 'Xác nhận mật khẩu mới', 'new-password')] %}
+      <label>{{ label }}<span class="password-field"><input type="password" id="{{ name }}" name="{{ name }}" required maxlength="128" {% if name != 'current_password' %}minlength="8"{% endif %} autocomplete="{{ autocomplete }}"><button type="button" class="password-toggle" data-password-toggle="{{ name }}" aria-label="Hiện {{ label|lower }}" aria-pressed="false">Hiện</button></span></label>
+      {% endfor %}
+      <div class="form-actions"><button>Cập nhật mật khẩu</button></div>
+    </form>
+  </div>
+  {% elif can_view_profile %}
+    <div class="public-profile-content"><h3>Giới thiệu</h3><p class="profile-bio-text">{{ profile_user.bio or 'Người dùng chưa thêm giới thiệu.' }}</p><p class="muted">Tham gia ngày {{ profile_user.created_at|join_date }}</p>{% if profile_user.email and profile_user.email_public %}<p>Email: {{ profile_user.email }}</p>{% endif %}</div>
+  {% else %}
+    <div class="empty-profile"><h3>Hồ sơ này đang ở chế độ riêng tư</h3><p>Chỉ chủ tài khoản có thể xem thông tin chi tiết.</p></div>
+  {% endif %}
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='profile.js', v='33') }}"></script>{% endblock %}

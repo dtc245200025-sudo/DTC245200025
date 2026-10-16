@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Quản lý # {{ room.name }}{% endblock %}
+{% block body_class %}rooms-page{% endblock %}
+{% block content %}
+<section class="card room-management" data-manage-room-id="{{ room.id }}">
+  <div class="toolbar"><div><p class="eyebrow">DÀNH CHO CHỦ PHÒNG</p><h1># {{ room.name }}</h1></div><a href="{{ url_for('web.chat', room_id=room.id) }}">Mở phòng chat →</a></div>
+  <div class="room-option-box"><strong>{{ 'Public' if room.visibility == 'public' else 'Private' }} · {{ room.access_label }}</strong><p>{{ count }}{% if room.max_members %}/{{ room.max_members }}{% endif %} thành viên · {{ 'Tính cả chủ phòng' if room.max_members else 'Không giới hạn thành viên' }}</p></div>
+  {% if room.join_mode == 'invite' %}
+    <h2>Link mời vào phòng</h2>
+    <p>Chỉ người có link mới có thể tham gia sau khi đăng nhập. Link dùng được nhiều lần đến khi bạn tạo link thay thế.</p>
+    {% if invitation_url %}<div class="room-option-box"><label>Link mời (chỉ hiển thị lần này)<input id="invitation-url" type="text" value="{{ invitation_url }}" readonly autocomplete="off"></label><button type="button" data-copy-invitation>Sao chép link</button><p id="invitation-copy-status" role="status"></p></div>{% endif %}
+    <form method="post" action="{{ url_for('room_actions.invitation', room_id=room.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button>{{ 'Tạo link mới và vô hiệu link cũ' if room.invite_token_hash else 'Tạo link mời' }}</button></form>
+    <p class="muted">Đừng chụp hoặc công khai toàn bộ link trong báo cáo. Thay link không loại thành viên đã tham gia.</p>
+  {% elif room.join_mode == 'approval' %}
+    <h2>Yêu cầu tham gia <span class="room-badge">{{ applications|length }}</span></h2>
+    {% for application in applications %}<article class="room-request"><div><strong>{{ application.user.label }}</strong><p class="muted">@{{ application.user.username }}</p></div><div class="room-request-buttons">{% for decision, label in [('approve','Phê duyệt'),('reject','Từ chối')] %}<form method="post" action="{{ url_for('room_actions.decide', room_id=room.id, application_id=application.id, decision=decision) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="{{ 'secondary' if decision == 'reject' else '' }}">{{ label }}</button></form>{% endfor %}</div></article>{% else %}<p class="muted">Chưa có yêu cầu đang chờ. Trang tự cập nhật khi có yêu cầu mới.</p>{% endfor %}
+  {% else %}<p class="muted">{{ 'Người dùng cần nhập đúng mật khẩu phòng để được tham gia.' if room.join_mode == 'password' else 'Người dùng có thể tham gia khi phòng còn chỗ.' }}</p>{% endif %}
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='rooms.js', v='32') }}"></script>{% endblock %}

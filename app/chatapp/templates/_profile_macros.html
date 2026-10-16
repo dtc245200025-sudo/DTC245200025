@@ -1,0 +1,9 @@
+{% macro avatar(user, size='', visible=true) -%}
+<span class="avatar-initial {{ size }}">
+  {% if user.avatar_data and visible %}<img src="{{ url_for('profiles.avatar', user_id=user.id) }}" alt="Avatar {{ user.label }}">{% else %}{{ user.initials if visible else user.username[:2]|upper }}{% endif %}
+</span>
+{%- endmacro %}
+
+{% macro presence(user_id, online=false) -%}
+<span class="presence-label {{ 'is-online' if online else '' }}" data-presence-user="{{ user_id }}"><span class="presence-dot" aria-hidden="true"></span><span data-presence-text>{{ 'Đang hoạt động' if online else 'Ngoại tuyến' }}</span></span>
+{%- endmacro %}

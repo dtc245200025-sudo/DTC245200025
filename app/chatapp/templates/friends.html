@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Bạn bè{% endblock %}
+{% block body_class %}friends-page{% endblock %}
+{% block content %}
+<section class="friends-shell" data-friends-page data-view="{{ view }}" data-query="{{ query }}">
+  <div class="friends-heading"><p class="eyebrow">THÊM BẠN THÊM KẾT NỐI</p><h1>Bạn bè</h1><p class="muted">Tìm người quen, gửi lời mời và kết nối cùng nhau trên LinhChat.</p></div>
+  <form method="post" action="{{ url_for('friends.search') }}" class="card friend-search-form" id="friend-search-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Tìm bạn theo tên hoặc email<input name="q" minlength="2" maxlength="254" required value="{{ query }}" placeholder="Nhập tên tài khoản, tên hiển thị hoặc email đầy đủ" autocomplete="off"></label><button>Tìm kiếm</button>
+    <small>Tên cần ít nhất 2 ký tự. Email cần nhập đầy đủ; email riêng tư không hiển thị trên kết quả.</small>
+  </form>
+  <p id="friends-update-status" class="muted" role="status" aria-live="polite"></p>
+  <div id="friends-content">{% include "_friends_panel.html" %}</div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='friends.js', v='33b') }}"></script>{% endblock %}

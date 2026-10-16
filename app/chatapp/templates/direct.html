@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_profile_macros.html" import avatar, presence %}
+{% block title %}{{ (peer.label if peer.profile_public else peer.username) if conversation else 'Tin nhắn riêng' }}{% endblock %}
+{% block body_class %}direct-page{% endblock %}
+{% block content %}
+<div class="direct-layout" data-direct-page data-current-user="{{ current_user.id }}" {% if conversation %}data-conversation-id="{{ conversation.id }}"{% endif %}>
+  <aside class="direct-sidebar card" aria-label="Danh sách trò chuyện riêng">
+    <div class="direct-sidebar-heading"><h1>Tin nhắn</h1><a href="{{ url_for('friends.index') }}" aria-label="Chọn bạn để nhắn tin">＋</a></div>
+    <p class="muted direct-subtitle">Một lời chào, thêm gắn kết.</p>
+    <div id="direct-inbox">{% include "_direct_inbox.html" %}</div>
+    <p class="muted" id="inbox-update-status" role="status"></p>
+  </aside>
+  {% if conversation %}
+  <section class="direct-chat card" aria-label="Trò chuyện riêng" data-can-send="{{ 'true' if can_send else 'false' }}">
+    <div class="direct-chat-heading"><a class="direct-peer" href="{{ url_for('profiles.user_profile', user_id=peer.id) }}">{{ avatar(peer, 'avatar-medium', peer.profile_public) }}<span><strong>{{ peer.label if peer.profile_public else peer.username }}</strong>{{ presence(peer.id, is_online(peer.id)) }}</span></a><span class="room-badge">Chat riêng · 2 người</span></div>
+    <p class="direct-privacy muted">Chỉ hai tài khoản trong cuộc trò chuyện được truy cập lịch sử.</p>
+    {% set scope = 'direct' %}{% set target_id = conversation.id %}{% set permitted = can_send %}{% include "_conversation.html" %}
+  </section>
+  {% else %}
+  <section class="direct-welcome card"><span class="choice-icon" aria-hidden="true">♡</span><h2>Mỗi kết nối bắt đầu từ một lời chào</h2><p class="muted">Chọn một cuộc trò chuyện bên trái hoặc nhắn tin cho một người bạn.</p><a class="button-link room-primary-link" href="{{ url_for('friends.index') }}">Mở danh sách bạn bè</a></section>
+  {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='typing.js', v='34a') }}"></script><script src="{{ url_for('static', filename='emoji.js', v='34b') }}"></script><script src="{{ url_for('static', filename='inbox.js', v='notify1') }}"></script><script src="{{ url_for('static', filename='conversation.js', v='34b2') }}"></script>{% endblock %}

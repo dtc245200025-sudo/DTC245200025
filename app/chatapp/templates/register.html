@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Đăng ký{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>Tạo tài khoản</h1>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Tên tài khoản<input name="username" required minlength="3" maxlength="80" pattern="[A-Za-z0-9_.-]{3,80}" autocomplete="username" value="{{ request.form.get('username', '') }}"></label>
+    <small>Chữ, số, dấu chấm, gạch dưới hoặc gạch ngang.</small>
+    <label>Email<input name="email" type="email" required maxlength="254" autocomplete="email" value="{{ request.form.get('email', '') }}" placeholder="ban@example.com"></label>
+    <label>Mật khẩu<input name="password" type="password" required minlength="8" autocomplete="new-password"></label>
+    <button>Đăng ký</button>
+  </form>
+  <p>Đã có tài khoản? <a href="{{ url_for('web.login') }}">Đăng nhập</a></p>
+</section>
+{% endblock %}

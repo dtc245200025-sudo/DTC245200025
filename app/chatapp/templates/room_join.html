@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Tham gia # {{ room.name }}{% endblock %}
+{% block body_class %}rooms-page{% endblock %}
+{% block content %}
+<section class="card room-form-card" data-wait-room-id="{{ room.id }}">
+  <span class="room-badge">{{ 'Public' if room.visibility == 'public' else 'Private' }}</span>
+  <h1># {{ room.name }}</h1>
+  <p class="muted">{{ room.access_label }} · {{ count }}{% if room.max_members %}/{{ room.max_members }}{% endif %} thành viên</p>
+  <p>Lịch sử và tin nhắn chỉ hiển thị sau khi bạn tham gia phòng thành công.</p>
+  {% if room.max_members and count >= room.max_members %}<p class="flash error">Phòng đã đầy. Hãy chờ có chỗ trống.</p>
+  {% elif room.join_mode == 'approval' and join_request and join_request.status == 'pending' %}
+    <p class="room-waiting" role="status">Đang chờ chủ phòng phê duyệt. Trang này sẽ mở phòng khi bạn được chấp nhận.</p>
+  {% else %}
+    {% if join_request and join_request.status == 'rejected' %}<p class="flash error">Yêu cầu trước đã bị từ chối. Bạn có thể gửi lại.</p>{% endif %}
+    <form method="post" action="{{ url_for('room_actions.join', room_id=room.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {% if room.join_mode == 'password' %}<label>Mật khẩu phòng<input type="password" name="room_password" required maxlength="128" autocomplete="off"></label>{% endif %}
+      <button>{{ 'Gửi yêu cầu tham gia' if room.join_mode == 'approval' else 'Tham gia phòng' }}</button>
+    </form>
+  {% endif %}
+  <p><a href="{{ url_for('web.search_rooms') }}">← Quay lại tìm phòng</a></p>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='rooms.js', v='32') }}"></script>{% endblock %}

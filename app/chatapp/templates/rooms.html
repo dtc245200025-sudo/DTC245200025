@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Tìm kiếm phòng Chat{% endblock %}
+{% block body_class %}rooms-page{% endblock %}
+{% block content %}
+<div class="toolbar"><div><p class="eyebrow">KẾT NỐI CÙNG MỌI NGƯỜI</p><h1>Tìm kiếm phòng Chat</h1></div><a class="button-link secondary" href="{{ url_for('web.create_room') }}">+ Tạo phòng</a></div>
+<section class="card">
+  <form method="get" class="room-search-form">
+    <label>Tên phòng<input name="q" maxlength="100" value="{{ query }}" placeholder="Tìm phòng bạn muốn tham gia..."></label>
+    <label>Hiển thị<select name="scope"><option value="all" {% if not mine %}selected{% endif %}>Các phòng có thể tìm</option><option value="mine" {% if mine %}selected{% endif %}>Phòng đã tham gia</option></select></label>
+    <button>Tìm kiếm</button>
+  </form>
+  <p class="muted room-search-note">Phòng dùng link mời chỉ hiển thị với thành viên. Lịch sử chat riêng chỉ dành cho người đã được cấp quyền.</p>
+  <div class="room-list">{% for room, count, joined in room_rows %}
+    <article class="room-result">
+      <div class="room-result-info"><div class="room-badges"><span class="room-badge">{{ 'Public' if room.visibility == 'public' else 'Private' }}</span><span class="muted">{{ room.access_label }}</span>{% if joined %}<span class="room-badge joined-badge">Đã tham gia</span>{% endif %}</div><h2># {{ room.name }}</h2><p class="muted">{{ count }}{% if room.max_members %}/{{ room.max_members }}{% endif %} thành viên{% if not room.max_members %} · Không giới hạn{% endif %}{% if room.created_by == current_user.id %} · Bạn là chủ phòng{% endif %}</p></div>
+      <div class="room-result-actions">
+        {% if joined %}<span class="nav-count" data-unread-room="{{ room.id }}" {% if not unread.rooms.get(room.id) %}hidden{% endif %} aria-label="Tin chưa đọc">{{ unread.rooms.get(room.id, 0) }}</span>{% endif %}
+        {% if room.created_by == current_user.id %}<a href="{{ url_for('room_actions.manage', room_id=room.id) }}">Quản lý</a>{% endif %}
+        <a class="button-link {{ 'secondary' if joined else 'room-primary-link' }}" href="{{ url_for('web.chat', room_id=room.id) }}">{{ 'Mở phòng' if joined else ('Phòng đã đầy' if room.max_members and count >= room.max_members else 'Xem và tham gia') }}</a>
+      </div>
+    </article>
+  {% else %}<p class="empty-profile">Không có phòng phù hợp. Bạn có thể tạo một phòng mới.</p>{% endfor %}</div>
+</section>
+{% endblock %}

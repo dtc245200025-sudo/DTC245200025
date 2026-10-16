@@ -1,0 +1,18 @@
+{% from "_chat_message.html" import chat_message %}
+<div data-conversation data-scope="{{ scope }}" data-target-id="{{ target_id }}" data-current-user="{{ current_user.id }}" data-can-send="{{ 'true' if permitted else 'false' }}">
+  <form id="chat-search-form" class="chat-search-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label class="visually-hidden" for="chat-search-input">Tìm tin nhắn trong cuộc trò chuyện</label><input type="search" id="chat-search-input" placeholder="Tìm tin nhắn hoặc tên tệp trong cuộc trò chuyện…" maxlength="100" required><button class="secondary compact">Tìm</button><button class="secondary compact" type="button" id="chat-search-close" hidden>Đóng kết quả</button></form>
+  <section id="chat-search-results" class="chat-search-results" aria-label="Kết quả tìm tin nhắn" hidden></section>
+  <button type="button" class="secondary compact" id="chat-load-older" {% if messages|length < 100 %}hidden{% endif %}>Xem tin nhắn trước</button>
+  <div id="{{ 'messages' if scope == 'room' else 'conversation-messages' }}" class="direct-messages" aria-label="Nội dung trò chuyện" aria-live="polite" tabindex="0">
+    {% for message in messages %}{{ chat_message(message, scope, current_user) }}{% else %}<p id="chat-empty" class="muted direct-empty-chat">Chưa có tin nhắn. Gửi một lời chào nhé!</p>{% endfor %}
+  </div>
+  <p class="typing-indicator" id="chat-typing" role="status" aria-live="polite"></p>
+  <p class="room-waiting" id="chat-read-only" {% if permitted %}hidden{% endif %}>Hai bạn không còn là bạn bè. Lịch sử vẫn được giữ; hãy kết bạn lại để gửi tin mới.</p>
+  <div class="chat-compose-tools"><button type="button" id="chat-emoji-toggle" class="secondary compact" aria-expanded="false" aria-controls="chat-emoji-picker" aria-label="Chọn emoji">😊 Emoji</button><button type="button" id="chat-file-picker" class="secondary compact" {% if not permitted %}disabled{% endif %}>Đính kèm tệp</button><small class="muted">Ảnh/file tối đa 10 MB</small><input type="file" id="chat-file" hidden></div>
+  <div id="chat-emoji-picker" class="chat-emoji-picker" hidden><label>Tìm emoji<input id="chat-emoji-query" autocomplete="off" placeholder="Ví dụ: cười, tim, vui…"></label><div id="chat-emoji-grid" class="chat-emoji-grid"></div></div>
+  <div id="chat-emoji-suggestions" class="chat-emoji-suggestions" aria-label="Gợi ý emoji" hidden></div>
+  <div id="chat-pending-file" class="chat-pending-file" hidden><span id="chat-file-name"></span><button type="button" class="secondary compact" id="chat-file-remove">Bỏ tệp</button></div>
+  <form id="chat-message-form" class="direct-composer"><label class="visually-hidden" for="chat-message-input">Nhập tin nhắn</label><input id="chat-message-input" maxlength="1000" autocomplete="off" placeholder="Nhắn một điều dễ thương… Gõ :cuoi để gợi ý emoji" {% if not permitted %}disabled{% endif %}><button id="chat-send" {% if not permitted %}disabled{% endif %}>Gửi</button></form>
+  <p id="chat-connection-status" class="muted direct-status" role="status">Đang kết nối…</p>
+</div>
+<dialog id="chat-message-details" class="chat-message-details" aria-labelledby="chat-details-title"><div class="profile-heading"><h3 id="chat-details-title">Thời gian tin nhắn</h3><button type="button" class="secondary compact" id="chat-details-close" aria-label="Đóng chi tiết tin nhắn">×</button></div><div id="chat-details-body"></div></dialog>

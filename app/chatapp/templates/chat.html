@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}# {{ room.name }}{% endblock %}
+{% block body_class %}rooms-page{% endblock %}
+{% block content %}
+<div class="toolbar room-chat-heading"><div><h1># {{ room.name }}</h1><p class="muted"><span class="room-badge">{{ 'Public' if room.visibility == 'public' else 'Private' }}</span> {{ room.access_label }} · {{ count }}{% if room.max_members %}/{{ room.max_members }}{% endif %} thành viên</p></div><div class="room-result-actions">{% if room.created_by == current_user.id %}<a href="{{ url_for('room_actions.manage', room_id=room.id) }}">Quản lý phòng</a>{% else %}<form method="post" action="{{ url_for('room_actions.leave', room_id=room.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secondary">Rời phòng</button></form>{% endif %}<a href="{{ url_for('web.search_rooms') }}">Tìm phòng</a></div></div>
+<section class="card chat" data-room-id="{{ room.id }}" data-current-user="{{ current_user.id }}">
+  {% set scope = 'room' %}{% set target_id = room.id %}{% set permitted = true %}{% include "_conversation.html" %}
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='typing.js', v='34a') }}"></script><script src="{{ url_for('static', filename='emoji.js', v='34b') }}"></script><script src="{{ url_for('static', filename='conversation.js', v='34b2') }}"></script>{% endblock %}

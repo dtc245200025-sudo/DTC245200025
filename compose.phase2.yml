@@ -1,0 +1,19 @@
+name: de32-phase2
+
+services:
+  app:
+    image: de32-chat-app
+    build: ./app
+    environment:
+      APP_ENV: development
+      DB_HOST: ""
+      DATABASE_URL: "sqlite:///:memory:"
+      SECRET_KEY: "phase2-preview-only-not-for-deployment"
+    ports:
+      - "127.0.0.1:5000:5000"
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,noexec,nosuid
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
