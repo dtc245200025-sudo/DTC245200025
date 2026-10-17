@@ -1,0 +1,93 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "description": "LinhChat trên Ubuntu VMware. Bộ đếm HTTP/tin là số từ lúc tiến trình app chạy, không phải tổng lịch sử DB. CPU 100% tương ứng một lõi logic; RAM là working set. Các số 0 là giá trị hợp lệ, không phải dữ liệu giả.",
+  "refresh": "15s",
+  "timepicker": {"refresh_intervals": ["5s", "10s", "15s", "30s", "1m", "5m"]},
+  "panels": [
+    {
+      "id":1,"type":"stat","title":"Target UP / 5","datasource":{"type":"prometheus","uid":"prometheus"},
+      "targets":[{"expr":"sum(up{job=~\"chat-app|postgres|nginx|cadvisor|prometheus\"})","refId":"A","instant":true}],
+      "fieldConfig":{"defaults":{"min":0,"max":5,"decimals":0,"thresholds":{"mode":"absolute","steps":[{"color":"red","value":null},{"color":"green","value":5}]}},"overrides":[]},
+      "options":{"colorMode":"value","graphMode":"none","reduceOptions":{"calcs":["lastNotNull"]}},
+      "gridPos":{"h":5,"w":4,"x":0,"y":0}
+    },
+    {
+      "id":2,"type":"stat","title":"PostgreSQL","datasource":{"type":"prometheus","uid":"prometheus"},
+      "targets":[{"expr":"min(pg_up{job=\"postgres\"})","refId":"A","instant":true}],
+      "fieldConfig":{"defaults":{"mappings":[{"type":"value","options":{"0":{"text":"DOWN","color":"red"},"1":{"text":"UP","color":"green"}}}]},"overrides":[]},
+      "options":{"colorMode":"value","graphMode":"none","reduceOptions":{"calcs":["lastNotNull"]}},
+      "gridPos":{"h":5,"w":4,"x":4,"y":0}
+    },
+    {
+      "id":3,"type":"stat","title":"Nginx","datasource":{"type":"prometheus","uid":"prometheus"},
+      "targets":[{"expr":"min(nginx_up{job=\"nginx\"})","refId":"A","instant":true}],
+      "fieldConfig":{"defaults":{"mappings":[{"type":"value","options":{"0":{"text":"DOWN","color":"red"},"1":{"text":"UP","color":"green"}}}]},"overrides":[]},
+      "options":{"colorMode":"value","graphMode":"none","reduceOptions":{"calcs":["lastNotNull"]}},
+      "gridPos":{"h":5,"w":4,"x":8,"y":0}
+    },
+    {
+      "id":4,"type":"stat","title":"HTTP requests","description":"Từ lúc app chạy; gồm healthcheck và scrape nội bộ.","datasource":{"type":"prometheus","uid":"prometheus"},
+      "targets":[{"expr":"sum(chat_http_requests_total{job=\"chat-app\"})","refId":"A","instant":true}],
+      "fieldConfig":{"defaults":{"unit":"short","decimals":0,"color":{"mode":"fixed","fixedColor":"blue"}},"overrides":[]},
+      "options":{"graphMode":"none","reduceOptions":{"calcs":["lastNotNull"]}},
+      "gridPos":{"h":5,"w":4,"x":12,"y":0}
+    },
+    {
+      "id":5,"type":"stat","title":"Tin nhóm + riêng","description":"Tin lưu thành công từ lúc app chạy, gồm tin có tệp; không phải tổng lịch sử PostgreSQL.","datasource":{"type":"prometheus","uid":"prometheus"},
+      "targets":[{"expr":"sum(chat_messages_total{job=\"chat-app\"}) + sum(chat_direct_messages_total{job=\"chat-app\"})","refId":"A","instant":true}],
+      "fieldConfig":{"defaults":{"unit":"short","decimals":0,"color":{"mode":"fixed","fixedColor":"green"}},"overrides":[]},
+      "options":{"graphMode":"none","reduceOptions":{"calcs":["lastNotNull"]}},
+      "gridPos":{"h":5,"w":4,"x":16,"y":0}
+    },
+    {
+      "id":6,"type":"stat","title":"Kết nối Socket.IO","description":"Số phiên trình duyệt đang kết nối đã đăng nhập; một người có thể có nhiều phiên. 0 là hợp lệ.","datasource":{"type":"prometheus","uid":"prometheus"},
+      "targets":[{"expr":"chat_socket_connections{job=\"chat-app\"}","refId":"A","instant":true}],
+      "fieldConfig":{"defaults":{"decimals":0,"color":{"mode":"fixed","fixedColor":"blue"}},"overrides":[]},
+      "options":{"graphMode":"none","reduceOptions":{"calcs":["lastNotNull"]}},
+      "gridPos":{"h":5,"w":4,"x":20,"y":0}
+    },
+    {
+      "id":7,"type":"timeseries","title":"CPU từng container","description":"100% là sử dụng một lõi logic. Chỉ container project de32-chat; không cộng root cgroup trùng lặp.","datasource":{"type":"prometheus","uid":"prometheus"},
+      "targets":[{"expr":"100 * sum by (service) (rate(container_cpu_usage_seconds_total{job=\"cadvisor\",service!=\"\"}[2m]) and on (id,instance,job) topk by (service) (1, container_last_seen{job=\"cadvisor\",service!=\"\"} > time() - 60))","legendFormat":"{{service}}","refId":"A"}],
+      "fieldConfig":{"defaults":{"unit":"percent","min":0,"custom":{"lineWidth":2,"fillOpacity":5}},"overrides":[]},
+      "options":{"legend":{"displayMode":"list","placement":"bottom","calcs":[]},"tooltip":{"mode":"multi"}},
+      "gridPos":{"h":7,"w":12,"x":0,"y":5}
+    },
+    {
+      "id":8,"type":"timeseries","title":"RAM từng container","description":"Working set bytes, không phải memory limit hoặc toàn bộ cache.","datasource":{"type":"prometheus","uid":"prometheus"},
+      "targets":[{"expr":"sum by (service) (container_memory_working_set_bytes{job=\"cadvisor\",service!=\"\"} and on (id,instance,job) topk by (service) (1, container_last_seen{job=\"cadvisor\",service!=\"\"} > time() - 60))","legendFormat":"{{service}}","refId":"A"}],
+      "fieldConfig":{"defaults":{"unit":"bytes","min":0,"custom":{"lineWidth":2,"fillOpacity":5}},"overrides":[]},
+      "options":{"legend":{"displayMode":"list","placement":"bottom","calcs":[]},"tooltip":{"mode":"multi"}},
+      "gridPos":{"h":7,"w":12,"x":12,"y":5}
+    },
+    {
+      "id":9,"type":"timeseries","title":"Kết nối PostgreSQL chatdb","datasource":{"type":"prometheus","uid":"prometheus"},
+      "targets":[{"expr":"sum(pg_stat_database_numbackends{job=\"postgres\",datname=\"chatdb\"})","legendFormat":"Kết nối DB","refId":"A"}],
+      "fieldConfig":{"defaults":{"min":0,"decimals":0},"overrides":[]},
+      "options":{"legend":{"displayMode":"list","placement":"bottom","calcs":[]}},
+      "gridPos":{"h":6,"w":8,"x":0,"y":12}
+    },
+    {
+      "id":10,"type":"timeseries","title":"Lưu lượng Nginx","datasource":{"type":"prometheus","uid":"prometheus"},
+      "targets":[{"expr":"rate(nginx_http_requests_total{job=\"nginx\"}[2m])","legendFormat":"Request/s","refId":"A"}],
+      "fieldConfig":{"defaults":{"unit":"reqps","min":0},"overrides":[]},
+      "options":{"legend":{"displayMode":"list","placement":"bottom","calcs":[]}},
+      "gridPos":{"h":6,"w":8,"x":8,"y":12}
+    },
+    {
+      "id":11,"type":"timeseries","title":"Độ trễ HTTP P95","description":"Phân vị95 thời gian xử lý HTTP trong Flask, không phải tổng độ trễ mạng hoặc WebSocket.","datasource":{"type":"prometheus","uid":"prometheus"},
+      "targets":[{"expr":"histogram_quantile(0.95, sum by (le) (rate(chat_http_request_duration_seconds_bucket{job=\"chat-app\"}[2m])))","legendFormat":"P95","refId":"A"}],
+      "fieldConfig":{"defaults":{"unit":"s","min":0},"overrides":[]},
+      "options":{"legend":{"displayMode":"list","placement":"bottom","calcs":[]}},
+      "gridPos":{"h":6,"w":8,"x":16,"y":12}
+    }
+  ],
+  "schemaVersion": 41,
+  "tags": ["de32", "chat"],
+  "templating": {"list": []},
+  "time": {"from": "now-15m", "to": "now"},
+  "timezone": "browser",
+  "title": "LinhChat Overview",
+  "uid": "linhchat-overview"
+}

@@ -1,6 +1,6 @@
 # Lộ trình Đề 32 và yêu cầu mở rộng LinhChat
 
-Giữ 8 giai đoạn của Đề 32, mở rộng Giai đoạn 3 thành các phần có thể kiểm tra và chụp minh chứng riêng. Giai đoạn 1–2 đã chạy đạt và đã chụp; Giai đoạn 3 cơ bản đã chạy nhưng phải bổ sung các yêu cầu mới trước mốc commit 1.
+Giữ 8 giai đoạn của Đề 32, mở rộng Giai đoạn 3 thành các phần có thể kiểm tra và chụp minh chứng riêng. Hiện Giai đoạn1–5 đã chạy đạt, người dùng đã chụp GĐ4 ngày18/10/2026; chờ chụp GĐ5 trước khi tiếp tục logging. Các mục kết quả bên dưới ghi rõ từng mốc lịch sử.
 
 | Giai đoạn | Công việc và tiêu chí hoàn thành | Minh chứng |
 |---|---|---|
@@ -12,8 +12,8 @@ Giữ 8 giai đoạn của Đề 32, mở rộng Giai đoạn 3 thành các ph�
 | 3.3b Bạn bè | Đã triển khai trên VM: tìm theo tên/email đầy đủ; gửi/chấp nhận/từ chối/thu hồi lời mời, hủy kết bạn; danh sách/số lời mời/online-offline realtime; giữ riêng tư email | 70/70 kiểm thử và PostgreSQL/WebSocket thật đạt; trình duyệt xác nhận hai phía tự cập nhật; chụp một Hình 7 theo docs/GD33B_BAN_BE_VA_MINH_CHUNG.md |
 | 3.4a Chat riêng và đang nhập | Đã triển khai trên VM: chat riêng từ Bạn bè, danh sách hội thoại/lịch sử PostgreSQL, đồng bộ lại và chống gửi trùng; chỉ hai tài khoản truy cập; đang nhập realtime ở riêng/nhóm | 98/98 kiểm thử, DIRECT34A_LIVE_CHECK_OK và DIRECT34A_PERSISTENCE_OK; trình duyệt hai chiều và sáng/tối đạt; một Hình 8 tùy chọn theo docs/GD34A_CHAT_RIENG_VA_MINH_CHUNG.md |
 | 3.4b Tin nhắn nâng cao | Đã triển khai trên VM: đã nhận/đã xem và thời gian chi tiết; tìm tin/nội dung/tên tệp; emoji/gợi ý; ảnh/file tối đa 10 MiB cho nhóm/riêng, tải xuống kiểm tra quyền | 131/131 kiểm thử, MESSAGES34B_LIVE_CHECK_OK, MESSAGES34B_PERSISTENCE_OK; trình duyệt kiểm tra file/ảnh/emoji/thời gian/tìm kiếm/sáng-tối; tối đa một ảnh tổng hợp theo docs/GD34B_TIN_NHAN_VA_BAO_CAO.md |
-| 4 Compose và Nginx | Đã triển khai: Nginx cổng 80, HTTP/WebSocket/polling, file đúng 10 MiB, thông báo, 4 headers, rate limit; app/DB không published; dữ liệu/file/unread còn sau recreate | 142/142 kiểm thử trên VM; NGINX4_LIVE_CHECK_OK, NGINX4_PERSISTENCE_OK, NGINX4_RATE_LIMIT_OK; commit 1; chờ một ảnh theo docs/GD4_NGINX_VA_BAO_CAO.md |
-| 5 Monitoring | Metrics HTTP/chat/socket/upload theo ứng dụng thực tế; Prometheus, cAdvisor, exporter DB/Nginx, dashboard Grafana | Target UP, dashboard có dữ liệu, commit 2 |
+| 4 Compose và Nginx | Đã triển khai: Nginx cổng 80, HTTP/WebSocket/polling, file đúng 10 MiB, thông báo, 4 headers, rate limit; app/DB không published; dữ liệu/file/unread còn sau recreate | 142/142 kiểm thử trên VM; NGINX4_LIVE_CHECK_OK, NGINX4_PERSISTENCE_OK, NGINX4_RATE_LIMIT_OK; commit1; người dùng đã chụp |
+| 5 Monitoring | Đã chạy đạt: metrics HTTP/chat/socket/upload, Prometheus/cAdvisor/exporter DB/Nginx, Grafana11panel và CPU/RAM9service; volume lưu lịch sử | 143/143test,5/5target UP, MONITORING_ACTIVITY_OK, MONITORING_PERSISTENCE_OK; commit2; chờ tối đa2ảnh theo docs/GD5_MONITORING_VA_BAO_CAO.md |
 | 6 Logging | Loki/Promtail thu log app/Nginx; truy vấn chat/upload/lỗi quyền; không ghi mật khẩu, nội dung file hoặc token mời | LogQL có dữ liệu thực tế, commit 3 |
 | 7 Hardening | Kiểm tra non-root, mạng nội bộ, role DB hạn chế, secret; session/CSRF; quyền phòng và file riêng tư; kiểm tra kích thước/nội dung upload; headers, rate limit và HTTPS nếu đề yêu cầu | Các kiểm tra cho phép/từ chối, Docker và HTTP headers |
 | 8 README Demo Báo cáo | Hướng dẫn bản cuối, sơ đồ dữ liệu cập nhật, kịch bản demo, ảnh đúng phiên bản LinhChat, báo cáo theo file đề gốc | README, lịch sử 3 mốc commit, minh chứng và báo cáo |
@@ -24,7 +24,7 @@ Giữ 8 giai đoạn của Đề 32, mở rộng Giai đoạn 3 thành các ph�
 2. Giai đoạn 5: monitoring chạy đạt.
 3. Giai đoạn 6: logging chạy đạt.
 
-Các biện pháp bảo vệ dữ liệu được triển khai cùng tính năng; Giai đoạn 7 là bước kiểm tra hardening tổng thể. Không commit `.env`, mật khẩu demo, dữ liệu upload, backup hoặc file riêng tư. Mốc 1: `feat: milestone 1 - LinhChat, PostgreSQL and Nginx`; xem hash bằng `git log -1 --oneline`. Chưa push GitHub, cần chốt repository đích. Trí nhớ cập nhật ở `MEMORY.md` và `docs/memory/`.
+Các biện pháp bảo vệ dữ liệu được triển khai cùng tính năng; Giai đoạn7 là bước kiểm tra hardening tổng thể. Không commit `.env`, mật khẩu demo, dữ liệu upload, backup hoặc file riêng tư. Mốc1 và2 đã có: `feat: milestone 1 - LinhChat, PostgreSQL and Nginx` và `feat: milestone 2 - Prometheus and Grafana monitoring`; xem hash bằng `git log -2 --oneline`. Chưa push GitHub, cần chốt repository đích. Trí nhớ cập nhật ở `MEMORY.md` và `docs/memory/`.
 
 ## Quy ước kiểm tra và ảnh
 
@@ -78,4 +78,8 @@ Hướng dẫn ngắn, một ảnh và chú thích báo cáo: `docs/GD33B_BAN_BE
 
 Đã chạy trên VMware, 142/142 test bản cuối và các kiểm tra qua Nginx thật đạt. WebSocket nhóm/riêng, polling fallback, notification/unread, tệp đúng 10 MiB và giới hạn vượt, quyền và headers/rate limit đều được kiểm tra. Sau recreate app không restart Nginx, tin/file/receipts/unread cũ còn. Chỉ dùng Compose chính, URL `http://localhost` trong Ubuntu, cổng app :5000 đã đóng published. pgAdmin vẫn localhost:5050.
 
-Đã tạo file trí nhớ yêu cầu/mục tiêu/ý tưởng/tiến trình/checklist theo yêu cầu người dùng, không có secret. Chờ chụp một ảnh Terminal từ tiêu đề GĐ4 đến `GIAI_DOAN_4_OK` bằng `bash scripts/check-phase4.sh`, hướng dẫn và đoạn báo cáo ở `docs/GD4_NGINX_VA_BAO_CAO.md`. Sau xác nhận chụp mới triển khai GĐ5 monitoring/commit 2; logging/commit 3 còn sau đó.
+Đã tạo file trí nhớ yêu cầu/mục tiêu/ý tưởng/tiến trình/checklist theo yêu cầu người dùng, không có secret. Người dùng xác nhận đã chụp GĐ4 ngày18/10/2026; hướng dẫn lịch sử ở `docs/GD4_NGINX_VA_BAO_CAO.md`. Sau đó triển khai GĐ5 bên dưới.
+
+## Kết quả Giai đoạn5 Monitoring
+
+Prometheus5/5target UP, Grafana LinhChat Overview11panel có dữ liệu thực tế, CPU/RAM9service. Đã thử hai client gửi6tin gồm2tệp và quan sát metrics tăng; sau tạo lại Prometheus/Grafana mẫu lịch sử và provisioning còn nguyên. Bộ kiểm thử143/143đạt trên VM; dữ liệu app cũ vẫn còn. Mốc2 đã lưu, chưa push. Hướng dẫn chụp tối đa2ảnh và đoạn báo cáo ở `docs/GD5_MONITORING_VA_BAO_CAO.md`. Chờ người dùng chụp trước GĐ6; logging chưa chạy.

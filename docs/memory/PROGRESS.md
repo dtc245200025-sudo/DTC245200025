@@ -46,3 +46,28 @@ Người dùng yêu cầu lưu trí nhớ và tiếp tục GĐ4. Kế hoạch: s
 - Hướng dẫn chụp một ảnh Terminal và đoạn báo cáo ngắn ở `docs/GD4_NGINX_VA_BAO_CAO.md`; `scripts/check-phase4.sh` in kiểm tra gọn không bí mật.
 - Mốc1: `feat: milestone 1 - LinhChat, PostgreSQL and Nginx`. Lấy hash từ Git thay vì ghi hash vào chính nội dung commit. Không commit.env/work/outputs/configchi tiết monitoring/logging chưa chạy; không push GitHub.
 - **Tiếp theo: chờ người dùng xác nhận đã chụp GĐ4, rồi GĐ5 monitoring**. Chưa chạy Prometheus/Grafana/Loki/Promtail, chưa commit2/3. Trước nộp cần người dùng chốt repo GitHub và triển khai đủ các giai đoạn còn lại.
+
+## 18/10/2026 — bắt đầu GĐ5
+
+Người dùng xác nhận “đã chụp GĐ4”, cho phép chuyển phần tiếp theo theo lộ trình. Đọc đầy đủ trí nhớ và kiểm tra lại VM thật: bốn dịch vụ GĐ4 hoạt động, app/Nginx/PostgreSQL Healthy, commit339d542 ở cả hai nơi, source tracked không có thay đổi ngoài dự kiến. VM dùng Docker cgroupv2/systemd/overlayfs, còn19GiB disk và khoảng2.3GiB RAM available. Đang kiểm tra cấu hình monitoring/phiên bản tương thích trước triển khai; chưa gọi hoàn thành hoặc tạo commit2. Logging không được bật trong giai đoạn này.
+
+## 18/10/2026 — monitoring chạy đạt qua API, đang hoàn tất UI/commit
+
+- Backup trước GĐ5: `work/backups/before-phase31-20261018-005629` trên VM. Đọc nguồn chính thức, tải và ghim digest image có thật: Prometheus3.14.0, Grafana13.2.2, cAdvisor0.60.6, PostgreSQL exporter0.20.1, Nginx exporter1.5.3. Không thay phiên bản app/DB/Nginx nền.
+- Profile monitoring đã chạy, tổng9service. 5/5target UP, exporter pg_up/nginx_up =1. Kiểm tra role postgres_exporter có pg_monitor, khôngsuperuser/createDB/createRole.
+- cAdvisor tương thích Docker/cgroupv2; chỉ nhãn project/service/oneoff, Prometheus lọc projectde32-chat, bỏ one-off rồi chuẩn hóa nhãnservice. CPU/RAM đủ9service qua query. Giữ bindlocalhost3000/9090; exporter/cAdvisor không published, app5000/DB5432 vẫn nội bộ. Quyền privileged/host mounts là ngoại lệ phải trình bày ở hardening.
+- Dashboard LinhChat Overview UIDlinhchat-overview, folderLinhChat,11panel; datasource Prometheus UIDprometheus. Loki datasource chưa được đưa vào provisioning vì logging chưa chạy. Mọi panel đã query được dữ liệu hữu hạn cả bằng Prometheus API và Grafana datasource API.
+- Bổ sung gauge số Socket.IO/online user từ state có khóa, không nhãn riêng tư. Test xác minh nhiều tab một tài khoản khác số người online. **143passed in70.67s** trên VM.
+- `MONITORING_ACTIVITY_OK`: hai clientWebSocket thật, gửi6tin gồm2tệp nhỏ, receipt/HTTP/upload bytes, quan sát counter tăng trong Prometheus và socketgauge>=2 trong lúc kết nối. Chỉ tài khoản synthetic A/B cũ, không lấy dữ liệu cá nhân làm demo.
+- `MONITORING_PERSISTENCE_OK`: sau force-recreate riêng Prometheus/Grafana, mẫu HTTP tại timestamp cũ còn nguyên, dashboard/datasource/query11panel còn. `MESSAGES34B_PERSISTENCE_OK`: dữ liệu app/file/receipt cũ và quyền vẫn đúng.
+- Thông tin đăng nhập Grafana ghi riêng `work/grafana-access.txt` mode600 trên VM (không có trong trí nhớ/Git/ảnh). Có bản riêng trong work Windows để công cụ kiểm thử đăng nhập, không in giá trị. Đường hầm công cụ13000→VM3000,19090→9090; không dùng các cổng tạm này trong hướng dẫn chụp Ubuntu.
+- Hướng dẫn dự kiến2ảnh, đăng nhập cụ thể và đoạn báo cáo ngắn ở `docs/GD5_MONITORING_VA_BAO_CAO.md`. Đang kiểm tra giao diện trước commit2; chưa thông báo người dùng GĐ5 hoàn thành, chưa chuyểnGĐ6.
+
+## 18/10/2026 — GĐ5 hoàn thành kỹ thuật
+
+- Giao diện thật qua SSH tunnel: Targets đủ5nhóm1/1up; LinhChat Overview hiển thị11panel, không lỗi console, datasource/query có dữ liệu. Làm mới15s thực sự được chọn trong UI sau bổ sung danh sách refresh_intervals. Ảnh minh chứng công cụ trong `outputs/linhchat-gd5-targets.jpg` và `outputs/linhchat-gd5-grafana.jpg`, không chứa đăng nhập; chưa phải ảnh người dùng đã chụp trong VM.
+- Sau force-recreate, cAdvisor/Prometheus còn instance cũ trong cửa sổ lookback. Đã sửa CPU/RAM để chỉ lấy instance mới nhất mỗi service với last_seen trong60giây; loại cộng trùng RAM. Kiểm tra9service và API11panel đạt lại, so sánh truy vấn dashboardAPI với JSON nguồn để tránh dùng cấu hình cũ. Phạm vi mỗi service một container.
+- Grafana giới hạn768m, GOMEMLIMIT512MiB sau quan sát cache tiến gần512m; Prometheus512m. Healthcheck readiness thật cho cả hai, Grafana đợi Prometheus healthy. Không OOM/restart bất thường khi kiểm tra cuối. Không thay giới hạn bảo mật/rate limit app để chạy test.
+- Đã hoàn tất hướng dẫn2ảnh, chú thích và đoạn báo cáo ngắn; README/lộ trình/guide/memory/checklist được cập nhật cùng mốc2. Thông điệp commit2 `feat: milestone 2 - Prometheus and Grafana monitoring`; lấy hash từ Git, không ghi hash tự tham chiếu. Không stage loki/promtail hoặc secret, không push.
+- Cấu hình runtime và source app đã đối chiếu SHA256 giống nhau; không rebuild app chỉ để cập nhật tài liệu, giữ counter đang có. Kiểm tra cuối bằng `bash scripts/check-phase5.sh` và persistence TSDB. Source/Git mốc2 được đồng bộ sang VM, không reset/xóa dữ liệu.
+- **Tiếp theo chờ người dùng xác nhận đã chụp GĐ5**, mới GĐ6 Loki/Promtail/baLogQL/commit3. Không bật logging trong phiên này. Báo cáo10–15trang, không thêm ảnh kiểm thử nếu đã có hai ảnh monitoring.

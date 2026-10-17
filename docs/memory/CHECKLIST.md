@@ -28,7 +28,7 @@
 - [x] Thông báo nổi và badge chưa đọc nhóm/riêng, người dùng xác nhận hoạt động.
 - [x] 140/140 test trên VM, notifications live với PostgreSQL/WebSocket thật.
 
-## GĐ4 — đã chạy đạt, chờ người dùng chụp
+## GĐ4 — đã chạy đạt và người dùng đã chụp
 
 - [x] Sao lưu trước chuyển proxy.
 - [x] Nginx config hợp lệ, non-root/read-only/healthcheck.
@@ -41,11 +41,23 @@
 - [x] 142/142 kiểm thử hồi quy trên VM; Nginx rate limit/runtime đạt.
 - [x] Hướng dẫn một ảnh chính, một ảnh tùy chọn và đoạn báo cáo ngắn.
 - [x] Commit mốc1 với nội dung đã chạy đạt, không bí mật.
-- [ ] Người dùng xác nhận đã chụp GĐ4.
+- [x] Người dùng xác nhận đã chụp GĐ4 ngày18/10/2026.
 
-## GĐ5–8
+## GĐ5 — đã chạy đạt, chờ người dùng chụp
 
-- [ ] GĐ5 Prometheus targets UP, exporter/cAdvisor thực tế, Grafana có dữ liệu; commit2.
+- [x] Sao lưu trước triển khai, ghim phiên bản/digest image chính thức; không thay DB/app nền.
+- [x] Prometheus5/5target UP, PostgreSQL/Nginx exporter hoạt động; role exporter pg_monitor không superuser.
+- [x] cAdvisor thu CPU/RAM9service; lọc one-off và instance cũ sau recreate, không nhãn người dùng.
+- [x] Grafana provisioning datasource/dashboard LinhChat Overview,11/11panel có dữ liệu; refresh15s được xác minh UI.
+- [x] Hai client WebSocket gửi6tin gồm2tệp, số liệu HTTP/chat/upload/socket tăng thực tế.
+- [x] 143/143 kiểm thử trên VM; kiểm tra persistence metrics/dashboard và dữ liệu app cũ đạt.
+- [x] Giới hạn RAM/TSDB, healthcheck; cổng quản trị localhost, exporter không published.
+- [x] Kiểm tra trình duyệt thật, hướng dẫn tối đa2ảnh và đoạn báo cáo ngắn.
+- [x] Commit mốc2 với thành phần đã chạy đạt, không secret; chưa push.
+- [ ] Người dùng xác nhận đã chụp GĐ5. Chờ trước khi chuyển GĐ6.
+
+## GĐ6–8
+
 - [ ] GĐ6 Loki/Promtail có log thật, ba truy vấn LogQL; commit3.
 - [ ] GĐ7 audit non-root/mạng/role DB/CSRF/headers/rate limit/secret; đối chiếu phạm vi HTTPS.
 - [ ] GĐ8 README/source/demo cuối, mô hình dữ liệu cập nhật, lịch sử3commit và báo cáo10–15trang.

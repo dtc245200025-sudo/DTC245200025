@@ -1,6 +1,7 @@
 """Presence of authenticated Socket.IO connections in this single-worker app."""
 
 from threading import RLock
+from prometheus_client import Gauge
 
 
 _lock = RLock()
@@ -38,3 +39,16 @@ def sessions_for(user_id):
 def reset():
     with _lock:
         _sessions.clear()
+
+
+def connection_count():
+    with _lock:
+        return len(_sessions)
+
+
+# Single-worker gauges read current state, so disconnects and resets cannot
+# leave a stale count. No usernames, socket IDs or other private metric labels.
+SOCKET_CONNECTIONS = Gauge("chat_socket_connections", "Current authenticated Socket.IO connections")
+ONLINE_USERS = Gauge("chat_online_users", "Current distinct users with an authenticated Socket.IO connection")
+SOCKET_CONNECTIONS.set_function(connection_count)
+ONLINE_USERS.set_function(lambda: len(online_ids()))

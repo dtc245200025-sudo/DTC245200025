@@ -106,13 +106,15 @@ docker compose --profile monitoring ps
 curl -f http://localhost:9090/-/ready
 ```
 
-Mở `http://localhost:9090/targets`, chờ ít nhất hai chu kỳ scrape. Các target app, PostgreSQL, Nginx, cAdvisor và Prometheus phải `UP`. Mở Grafana `http://localhost:3000`, đăng nhập bằng tài khoản trong `.env`, mở dashboard `De32 Chat Overview` trong folder `De32 Chat`.
+GĐ5 đã chạy đạt trên VM. Mở `http://localhost:9090/targets`, cả5target phải `UP`. Mở Grafana `http://localhost:3000`, đăng nhập bằng tài khoản xem riêng tại `work/grafana-access.txt` (không chụp mật khẩu), rồi mở **Dashboards → LinhChat → LinhChat Overview**. Có thể vào thẳng `http://localhost:3000/d/linhchat-overview` sau đăng nhập.
 
-Gửi thêm tin nhắn để số `Chat messages` tăng; đây là bộ đếm từ lúc app chạy, không phải tổng hàng lịch sử trong database. Chờ khoảng 5 phút để panel CPU dùng `rate(...[5m])` có đủ mẫu.
+Gửi thêm tin nhắn để số tin nhóm/riêng tăng; đây là bộ đếm từ lúc app chạy, không phải tổng hàng lịch sử trong database. CPU dùng rate2phút; nếu vừa khởi động, chờ30–60giây để có hai mẫu. Chọn Last15minutes và làm mới15s. Socket=0 khi không ai mở LinhChat là hợp lệ.
 
-Ảnh `05a-prometheus-targets.png`: các target UP. Ảnh `05b-grafana-dashboard.png`: có dữ liệu app, DB, Nginx, CPU/RAM container. Không chỉ chụp dashboard trống. Đây là mốc commit 2 sau khi kiểm tra đạt.
+Ảnh `gd5-prometheus-targets.png`: đủ5target UP. Ảnh `gd5-grafana-dashboard.png`: có dữ liệu app, DB, Nginx, CPU/RAM9service. Không chụp dashboard trống. Mốc2 đã lưu sau143/143test, kiểm tra activity/persistence và trình duyệt. Hướng dẫn kỹ, chú thích, đoạn báo cáo ngắn: `docs/GD5_MONITORING_VA_BAO_CAO.md`. Chạy `bash scripts/check-phase5.sh` nếu cần kiểm tra lại; không cần thêm ảnh Terminal.
 
 ## Giai đoạn 6 Logging
+
+Chưa triển khai/chạy đạt; lệnh/truy vấn dưới đây là kế hoạch, chưa dùng làm minh chứng. Chờ người dùng chụp GĐ5, bổ sung và kiểm tra cấu hình/datasource trước khi thực hiện.
 
 ```bash
 docker compose --profile monitoring --profile logging up -d
@@ -154,7 +156,7 @@ Kết quả mong muốn: app/Nginx UID khác 0; PostgreSQL không có published 
 
 ## Giai đoạn 8 README Demo Báo cáo
 
-Báo cáo chỉ ghi kết quả đã có minh chứng. Chọn ảnh Giai đoạn1–7, sơ đồ kiến trúc, mô hình dữ liệu cập nhật theo `models.py`, cách triển khai, ba mốc commit, truy vấn metrics/log và giới hạn hardening. Tổng10–15trang; monitoring/logging chưa chạy thì chưa viết kết quả hoàn thành.
+Báo cáo chỉ ghi kết quả đã có minh chứng. Chọn ảnh Giai đoạn1–7, sơ đồ kiến trúc, mô hình dữ liệu cập nhật theo `models.py`, cách triển khai, ba mốc commit, truy vấn metrics/log và giới hạn hardening. Tổng10–15trang; monitoring đã chạy đạt, logging chưa chạy nên chưa viết kết quả logging hoàn thành.
 
 Kịch bản demo: khởi động Compose, đăng nhập hai user, tạo phòng/gửi tin, xem dữ liệu pgAdmin, Prometheus targets, Grafana dashboard, ba truy vấn LogQL và kiểm tra non-root.
 
