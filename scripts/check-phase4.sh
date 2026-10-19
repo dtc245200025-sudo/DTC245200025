@@ -28,6 +28,6 @@ test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://local
 printf '[OK] pgAdmin localhost:5050 van hoat dong\n'
 if git rev-parse --verify HEAD > /dev/null 2>&1; then
   printf '\nMOC COMMIT DA LUU\n'
-  git log -1 --format='%h %s'
+  git log --format='%h %s' --grep='^feat: milestone 1 -'
 fi
 printf '\nGIAI_DOAN_4_OK\n'

@@ -18,6 +18,7 @@ Hoàn thành Đề 32 hệ thống chat nội bộ theo file đề gốc, chạy
 - Hồ sơ: trang cá nhân và trang người khác; avatar chữ viết tắt/ảnh, tên hiển thị được sửa, username cố định, online/offline, bio tối đa 150 ký tự, ngày tham gia, chỉnh public/private và quyền hiện email. Khung hồ sơ căn giữa, hai lề cân đối.
 - Menu avatar nhỏ góc trên phải theo mẫu Teams: tên/username/trạng thái, Xem hồ sơ, Đổi mật khẩu, Cài đặt, Đăng xuất; đóng khi bấm ngoài/Escape.
 - Tab Bảo mật trong Profile: mật khẩu hiện tại/mới/xác nhận, nút hiện/ẩn, hash và kiểm tra bằng `werkzeug.security`; không lưu plaintext. Đổi mật khẩu thu hồi các phiên cũ.
+- Quyết định triển khai khi audit GĐ7: đăng xuất cũng thu hồi mọi phiên HTTP/cookie/Socket.IO của chính tài khoản bằng auth_version; không ảnh hưởng tài khoản khác. Nút Thoát/menu có tooltip giải thích. Đây là bản sửa hardening, không phải yêu cầu thêm giao diện mới.
 - Chat riêng từng người từ Bạn bè, chỉ hai tài khoản truy cập; phải còn là bạn bè để gửi mới, vẫn giữ lịch sử sau hủy kết bạn.
 - Chung cho nhóm/riêng: đang nhập realtime; đã gửi/nhận/xem realtime, bấm tin xem thời gian từng mốc; tìm tin; emoji có gợi ý; ảnh/file tối đa 10 MB (triển khai 10 MiB = 10,485,760 byte), một tệp mỗi lần. Tệp/preview ở PostgreSQL, tải xuống kiểm tra quyền.
 - Tin cũ không bịa thời gian nhận/xem. Nhận là trình duyệt xác nhận, không suy ra từ online; xem là tin hiện trong khung chat có focus, không chứng minh người đọc hiểu. Nhóm chốt danh sách người nhận lúc gửi.

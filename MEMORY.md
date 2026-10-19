@@ -15,7 +15,8 @@ Cập nhật: 19/10/2026. Người dùng yêu cầu lưu toàn bộ ý tưởng,
 - **Giai đoạn4 đã chạy đạt trên VM**,142/142test (61.84s), Nginx HTTP/WebSocket/polling, file đúng10 MiB, thông báo/quyền/headers/rate limit và persistence đạt. Commit mốc1: `feat: milestone 1 - LinhChat, PostgreSQL and Nginx`; lấy hash bằng `git log -1 --oneline`, không ghi hash tự tham chiếu vào file được commit.
 - Ngày18/10 người dùng xác nhận **đã chụp GĐ4**. **GĐ5 monitoring đã chạy đạt trên VM**: 143/143 test, 5/5 target UP, CPU/RAM đủ9service, 11/11panel có dữ liệu, kiểm tra hoạt động và persistence đạt; đã xem giao diện thật. Mốc2: `feat: milestone 2 - Prometheus and Grafana monitoring`; lấy hash từ `git log -2 --oneline`. Mốc1 thực tế `339d542`. Chưa push GitHub, chưa chốt repo đích.
 - Người dùng xác nhận **đã chụp GĐ5 ngày19/10**. **GĐ6 đã chạy đạt**:146/146test,3LogQL có log thật qua Grafana, canary/secret không xuất hiện trong mẫu log, LOGGING_PERSISTENCE_OK và dữ liệu app cũ còn. Mốc3 `feat: milestone 3 - Loki and Promtail centralized logging`; lấy hash từ Git. Chưa push.
-- **Chờ người dùng chụp GĐ6** theo `docs/GD6_LOGGING_VA_BAO_CAO.md`, một ảnh chính và một ảnh tùy chọn. GĐ7audit/GĐ8báo cáo cuối chưa hoàn thành. Chưa sửa Word.
+- Người dùng đã gửiảnhGĐ6hợp lệ vàyêucầutiếpGĐ7 ngày19/10. **GĐ7chạyđạt**:152/152test, HARDENING_INFRA_OK/HARDENING_LIVE_OK, ratelimit/persistence/monitoring/loggingđạt. Sửa logout thu hồi mọiHTTP/cookie/socket của chính tài khoản vàchuẩnhóaheaderproxy. Ba mốccommitcũ giữnguyên, fixGĐ7 lưu riêng, khôngrewrite/chưapush.
+- **Chờ người dùng chụpGĐ7** theo `docs/GD7_HARDENING_VA_BAO_CAO.md`, một ảnhTerminal bằng `bash scripts/check-phase7.sh`. GĐ8chưa hoànthành, chưa sửaWord. HTTPkhôngTLS vàngoạilệcAdvisor/Promtail đãghi rõ, khônggọi productionsecure.
 - Người dùng muốn làm thực tế, không chỉ hướng dẫn. Sau mỗi giai đoạn: thông báo kết quả, chỉ màn hình cần chụp và cho chú thích/đoạn báo cáo ngắn. Tổng báo cáo 10–15 trang.
 
 ## Môi trường và cách truy cập
@@ -29,6 +30,7 @@ Cập nhật: 19/10/2026. Người dùng yêu cầu lưu toàn bộ ý tưởng,
 - Sao lưu bằng `bash scripts/backup-before-upgrade.sh`; backup trước GĐ4: `work/backups/before-phase31-20261016-231002` (prefix lịch sử, nội dung là thời điểm thực tế); trước sửa thông báo là `...-225704`. Không commit backup.
 - Backup trước GĐ5: `work/backups/before-phase31-20261018-005629`. Đăng nhập Grafana đọc riêng `work/grafana-access.txt` trên VM, không in vào ảnh/Git/trí nhớ. Prometheus/Grafana có volume riêng; RAM giới hạn512m/768m, Grafana GOMEMLIMIT512MiB; cAdvisor privileged là ngoại lệ hardening.
 - Backup trướcGĐ6 `work/backups/before-phase31-20261019-142649`. Loki3.6.18/Promtail3.6.7 ghimdigest; volumesloki_data/promtail_positions. PromtailEOL; chỉ đọc DockerAPI cho curatedaudit app/Nginx, bỏone-off/logreplay>1h. Socketro vẫn quyền mạnh; không coi productionhardening hoàn tất. Mẫu thử trong work, không commit. Nếu cần log mới để chụp, `bash scripts/prepare-phase6-evidence.sh` tạo thêm dữ liệu synthetic, không xóa cũ.
+- BackuptrướcGĐ7 `work/backups/before-phase31-20261019-150109` vàbảnNginxcũ `work/backups/before-phase7-header-nginx.conf` trênVM. LiveauditdùngsyntheticA/B/C, đãlogoutmọiphiêncủaAđểthử; khôngđổimật khẩu. `work/hardening-live.json` chỉboolean/timestamp/imageID, khôngcookie/secret; checkGĐ7 đọcảnhhạtầngtrựctiếpvàđốichiếuimagevớiliveevidenceđãlưu.
 
 ## Tài liệu người dùng
 

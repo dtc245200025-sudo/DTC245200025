@@ -56,7 +56,7 @@
 - [x] Commit mốc2 với thành phần đã chạy đạt, không secret; chưa push.
 - [x] Người dùng xác nhận đã chụp GĐ5 ngày19/10/2026; cho phép tiếp tục GĐ6.
 
-## GĐ6 — đã chạy đạt, chờ người dùng chụp
+## GĐ6 — đã chạy đạt và người dùng đã chụp
 
 - [x] Backup trước triển khai; image Loki/Promtail chính thức ghimdigest, không thay DB.
 - [x] AppJSON allowlist; Nginxroutecốđịnh, GunicornkhôngURL/query; xoaylogDocker10MB×3.
@@ -68,11 +68,24 @@
 - [x] Monitoring5/5UP,11panel,CPU/RAM11service sau thêmlogging.
 - [x] Xác minh giao diện Explore và hướng dẫn một ảnh chính/một ảnh tùy chọn.
 - [x] Commit mốc3 có thành phần chạy đạt, không secret; chưa push.
-- [ ] Người dùng xác nhận đã chụp GĐ6; chờ trước GĐ7.
+- [x] Người dùng gửi ảnhGĐ6 hợp lệ và yêu cầu tiếp tụcGĐ7 ngày19/10/2026.
 
-## GĐ7–8
+## GĐ7 — đã chạy đạt, chờ người dùng chụp
 
-- [ ] GĐ7 audit non-root/mạng/role DB/CSRF/headers/rate limit/secret; đối chiếu phạm vi HTTPS.
+- [x] App/Nginx non-root/rootfsro/capdropALL/NoNewPrivs/seccomp; sourcehashkhớpcontainer.
+- [x] Cổngadminlocalhost, app/DB/collector khôngpublish; backendinternal, proxy/Grafana khôngvàomạngDB.
+- [x] RoleDBhạnchế, exporterpg_monitor/khôngghi messages; kiểmtrahash khôngin dữliệu.
+- [x] .env600/work700,secretkhôngmặcđịnh/trùng; quétGit vàlịchsửkhôngsecret/privatepath.
+- [x] CSRF/cookietamper/Origin/quyềnHTTP-file vàheaderđạt; ratelimit429/GET200.
+- [x] Backupvàsửalogoutthu hồimọiphiêncùngtài khoản; userkhác khôngbịảnhhưởng.
+- [x] Chuẩnhóasecurityheaderproxykhôngtrùng; Nginxnhậnđúngmountsource.
+- [x] 152/152unit; HARDENING_LIVE_OK/INFRA_OK vàpersistence/monitoring/loggingđạt.
+- [x] MộtảnhTerminal, đoạn báo cáo ngắn vàgiớihạnHTTP/DockerAPI đượcghi rõ.
+- [x] Giữ3commitmốcbanđầu, commitsửaGĐ7riêng; khôngpush.
+- [ ] Người dùng xác nhận đã chụpGĐ7; chờ trướcGĐ8.
+
+## GĐ8
+
 - [ ] GĐ8 README/source/demo cuối, mô hình dữ liệu cập nhật, lịch sử3commit và báo cáo10–15trang.
 - [ ] Đánh lại số hình trùng khi người dùng hoàn thiện báo cáo; chưa tự sửa Demo.docx.
 - [ ] Chốt repository GitHub theo mã sinh viên và push03mốc trước nộp; hiện chưa có remote, không tự tạo/push.

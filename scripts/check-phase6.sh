@@ -7,4 +7,4 @@ docker compose --profile monitoring --profile logging ps --format 'table {{.Serv
 python3 tests/verify_logging.py
 python3 tests/verify_monitoring.py --with-logging
 printf '\nBA MOC COMMIT\n'
-git log -3 --format='%h %s'
+git log --grep='^feat: milestone ' --format='%h %s'

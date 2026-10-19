@@ -1,6 +1,6 @@
 # Lộ trình Đề 32 và yêu cầu mở rộng LinhChat
 
-Giữ8giai đoạn, mở rộngGĐ3 theo yêu cầu LinhChat. HiệnGĐ1–6 đã chạy đạt, người dùng xác nhận chụpGĐ5 ngày19/10/2026; chờ chụpGĐ6 trước auditGĐ7. Các mục kết quả bên dưới ghi rõ từng mốc lịch sử.
+Giữ 8 giai đoạn, mở rộng GĐ3 theo yêu cầu LinhChat. GĐ1–7 đã chạy đạt; người dùng gửi ảnh GĐ6 hợp lệ và yêu cầu GĐ7 ngày19/10/2026. Chờ chụp GĐ7 trước bàn giao GĐ8. Các mục bên dưới ghi rõ kết quả từng mốc lịch sử.
 
 | Giai đoạn | Công việc và tiêu chí hoàn thành | Minh chứng |
 |---|---|---|
@@ -15,7 +15,7 @@ Giữ8giai đoạn, mở rộngGĐ3 theo yêu cầu LinhChat. HiệnGĐ1–6 đ�
 | 4 Compose và Nginx | Đã triển khai: Nginx cổng 80, HTTP/WebSocket/polling, file đúng 10 MiB, thông báo, 4 headers, rate limit; app/DB không published; dữ liệu/file/unread còn sau recreate | 142/142 kiểm thử trên VM; NGINX4_LIVE_CHECK_OK, NGINX4_PERSISTENCE_OK, NGINX4_RATE_LIMIT_OK; commit1; người dùng đã chụp |
 | 5 Monitoring | Đã chạy đạt: HTTP/chat/socket/upload, exporter DB/Nginx/cAdvisor, Grafana11panel; CPU/RAM9service ở mốc5,11service sauGĐ6 | 143/143test tại mốc5,5/5UP,activity/persistence; commit2; người dùng đã chụp |
 | 6 Logging | Đã chạy đạt: Loki/Promtail curatedaudit app/Nginx;3query chat/upload/web/yêu cầu bị từ chối; không ghi nội dung/secret trong mẫu thử | 146/146test,LOGGING_ACTIVITY_OK,LOGGING_PERSISTENCE_OK,canary/secretcheck; commit3; chờ ảnh theo docs/GD6_LOGGING_VA_BAO_CAO.md |
-| 7 Hardening | Kiểm tra non-root, mạng nội bộ, role DB hạn chế, secret; session/CSRF; quyền phòng và file riêng tư; kiểm tra kích thước/nội dung upload; headers, rate limit và HTTPS nếu đề yêu cầu | Các kiểm tra cho phép/từ chối, Docker và HTTP headers |
+| 7 Hardening | Đã audit non-root/ro/capdrop/NNP/seccomp, mạng/role/secret/hash, CSRF/cookie/Origin/quyền/header/rate limit; sửa thu hồi phiên khi logout và header trùng | 152/152 test; HARDENING_INFRA_OK/LIVE_OK, persistence/monitoring/logging vẫn đạt; chờ một ảnh theo docs/GD7_HARDENING_VA_BAO_CAO.md |
 | 8 README Demo Báo cáo | Hướng dẫn bản cuối, sơ đồ dữ liệu cập nhật, kịch bản demo, ảnh đúng phiên bản LinhChat, báo cáo theo file đề gốc | README, lịch sử 3 mốc commit, minh chứng và báo cáo |
 
 ## Ba mốc commit
@@ -24,7 +24,7 @@ Giữ8giai đoạn, mở rộngGĐ3 theo yêu cầu LinhChat. HiệnGĐ1–6 đ�
 2. Giai đoạn 5: monitoring chạy đạt.
 3. Giai đoạn 6: logging chạy đạt.
 
-Các biện pháp bảo vệ dữ liệu được triển khai cùng tính năng; Giai đoạn7 là audit tổng thể. Không commit.env/mật khẩu/data/backup. Đủ3mốc ứng dụng-Nginx,monitoring,logging đã chạy đạt; xem `git log -3 --oneline`. Chưa pushGitHub, cần người dùng chốt repository. Trí nhớ ởMEMORY.md vàdocs/memory/.
+Các biện pháp bảo vệ dữ liệu được triển khai cùng tính năng; GĐ7 là audit tổng thể. Không commit .env/mật khẩu/data/backup. Đủ ba mốc ứng dụng-Nginx, monitoring, logging; lọc bằng `git log --oneline --grep='^feat: milestone '`. Fix GĐ7 lưu riêng sau ba mốc, không rewrite. Chưa push GitHub, cần người dùng chốt repository. Trí nhớ ở MEMORY.md và docs/memory/.
 
 ## Quy ước kiểm tra và ảnh
 
@@ -87,3 +87,7 @@ Prometheus5/5target UP, Grafana LinhChat Overview11panel có dữ liệu thực 
 ## Kết quả Giai đoạn6 Logging
 
 Loki3.6.18/Promtail3.6.7 ghimdigest,11service chạy. AppJSON allowlist/Nginxroutecốđịnh, không nội dung/secret trong mẫu;3query LogQL qua Loki/Grafana có log thật. Recreate hai agent/storage giữ log snapshot/positions, dữ liệu app cũ còn. 146/146testđạt; monitoring5/5UP/11panel vàCPU/RAM11service. Commit3 đã lưu, chưapush. Hướng dẫn một ảnh chính/một ảnh tùy chọn và đoạn báo cáo ở `docs/GD6_LOGGING_VA_BAO_CAO.md`; chờ chụp trước auditGĐ7. PromtailEOL và quyềnDockerAPI là giới hạn phải ghi rõ.
+
+## Kết quả Giai đoạn7 Hardening
+
+Người dùng đã gửi ảnh GĐ6 hợp lệ, sau đó yêu cầu GĐ7. Audit Docker/process/network/PostgreSQL/secret/Git và HTTP/WebSocket đạt; 152/152 test. Đã sửa logout thu hồi mọi phiên cùng tài khoản và chuẩn hóa header proxy. Dữ liệu cũ cùng monitoring/logging vẫn đạt. Giữ ba commit mốc, thêm commit fix riêng; chưa push. Chờ một ảnh từ `bash scripts/check-phase7.sh` theo `docs/GD7_HARDENING_VA_BAO_CAO.md` trước GĐ8. Giữ rõ giới hạn HTTP chưa TLS, cAdvisor privileged/Promtail DockerAPI; không coi audit lab là chứng nhận an toàn.

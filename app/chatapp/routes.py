@@ -130,6 +130,13 @@ def login():
 
 @web.post("/logout")
 def logout():
+    # Global sign-out for this account: copied cookies and existing sockets expire.
+    if g.current_user is not None:
+        user_id = g.current_user.id
+        db.session.execute(db.update(User).where(User.id == user_id).values(auth_version=User.auth_version + 1))
+        db.session.commit()
+        from .events import disconnect_user
+        disconnect_user(user_id)
     session.clear()
     return redirect(url_for("web.login"))
 

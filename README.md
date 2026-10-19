@@ -2,13 +2,13 @@
 
 ## Trạng thái mới nhất
 
-Giai đoạn1–6 đã triển khai trên Ubuntu VMware. Người dùng xác nhận đã chụp GĐ5 ngày19/10/2026. Hiện11service hoạt động với monitoring và logging. Nginx public80, app/DB không published; pgAdminlocalhost5050, Grafanalocalhost3000, Prometheuslocalhost9090; Loki/Promtail không publish cổng host. Hướng dẫn chụp một ảnh chính, một ảnh tùy chọn và đoạn báo cáo: `docs/GD6_LOGGING_VA_BAO_CAO.md`. Chờ chụp GĐ6 trước auditGĐ7.
+Giai đoạn 1–7 đã chạy đạt trên Ubuntu VMware. Người dùng đã gửi ảnh GĐ6 hợp lệ và yêu cầu GĐ7 ngày 19/10/2026. Hiện 11 service hoạt động; trong Docker chỉ Nginx public80, app/DB không published, các cổng quản trị bind localhost. GĐ7 đạt 152/152 test, audit hạ tầng/HTTP/WebSocket; hướng dẫn **một ảnh Terminal** và đoạn báo cáo ở `docs/GD7_HARDENING_VA_BAO_CAO.md`. Chờ chụp GĐ7 trước GĐ8.
 
 Trí nhớ dự án: đọc `MEMORY.md`, yêu cầu/ý tưởng ở `docs/memory/REQUIREMENTS.md`, tiến trình ở `docs/memory/PROGRESS.md`, checklist ở `docs/memory/CHECKLIST.md`. Cập nhật sau mỗi giai đoạn. Không lưu secret trong các file này. Người dùng đã xác nhận thông báo tin nhắn mới hoạt động. Unread được lưu theo receipt trong PostgreSQL; toast/badge cập nhật trên mọi trang, nhận đầy đủ tin mới xác nhận delivered; GET và đóng toast không đánh dấu seen.
 
-Bản cuối GĐ6 đạt146/146test trên VM, LOGGING_ACTIVITY_OK, LOGGING_PERSISTENCE_OK, MESSAGES34B_PERSISTENCE_OK;3LogQL qua Grafana có log thật và kiểm tra canary/secret không lộ trong mẫu. Monitoring vẫn5/5UP,11panel, CPU/RAM đủ11service. Kết quảGĐ5143test/GĐ4142test là lịch sử mốc trước. Ba mốc commit đã có, xem `git log -3 --oneline`; chưa push.
+Bản GĐ7 đạt 152/152 test trên VM, HARDENING_INFRA_OK/HARDENING_LIVE_OK, NGINX4_RATE_LIMIT_OK và MESSAGES34B_PERSISTENCE_OK. Monitoring 5/5 UP, 11 panel/11 service; logging 3 LogQL vẫn có dữ liệu. GĐ6 đạt146/GĐ5 đạt143/GĐ4 đạt142 là kết quả lịch sử. Giữ nguyên ba commit mốc; bản fix hardening được lưu riêng, không rewrite. Xem `git log --oneline` hoặc `git log --oneline --grep='^feat: milestone '` để lọc ba mốc; chưa push.
 
-Hardening tổng thể và báo cáo cuối cònGĐ7–8. Mốc2monitoring/mốc3logging đã chạy đạt; các số test22/38/55/70/98/131 bên dưới là lịch sử, không phải bộ mới nhất. Chưa có repositoryGitHub đích được chốt, không tự push.
+GĐ8 bàn giao cuối còn chờ; các số test trong phần lịch sử không phải bộ mới nhất. Chưa chốt repository GitHub, không tự push. GĐ7 là audit cấu hình/lab, không phải chứng nhận an toàn hoặc quét mọi CVE; HTTP chưa TLS, cAdvisor/Promtail có ngoại lệ quyền mạnh.
 
 ## Mở rộng LinhChat
 
@@ -115,7 +115,9 @@ Promtail đã ngừng vòng đời upstream nhưng vẫn được giữ theo sta
 
 Hướng dẫn đầy đủ và giới hạn: `docs/GD6_LOGGING_VA_BAO_CAO.md`. Loki/Promtail có volume dữ liệu/positions, giới hạnRAM512m/128m; retention7ngày là cấu hình, không là giới hạndiskfree. Promtail bỏ replay>1h; không cam kết lưu đủ log khi ngừng lâu. Chỉ curatedaudit app/Nginx, không toàn bộ stacktrace/DBlogs. Docker socketro vẫn cấp quyền mạnh. Kiểm tra lại bằng `bash scripts/check-phase6.sh`; cần log mới để chụp thì `bash scripts/prepare-phase6-evidence.sh` (tạo thêm dữ liệu synthetic, không xóa cũ).
 
-## Hardening đã cấu hình và cần xác minh trên VM
+## Hardening đã kiểm tra trên VM
+
+GĐ7 đã xác minh các mục bên dưới trong phạm vi lab bằng Docker inspect/process status, PostgreSQL, HTTP và WebSocket. Chạy `bash scripts/check-phase7.sh` để kiểm tra hạ tầng/header hiện tại và đối chiếu bằng chứng live đã lưu với image app/cấu hình Nginx. Logout hiện thu hồi **tất cả phiên của cùng tài khoản**, không ảnh hưởng người khác; nút Thoát/menu có tooltip giải thích. Header proxy được chuẩn hóa, không gửi hai giá trị nosniff trùng nhau. Giới hạn và hướng dẫn ảnh: `docs/GD7_HARDENING_VA_BAO_CAO.md`.
 
 - App chạy bằng UID/GID không phải root.
 - Mật khẩu và secret nằm trong `.env`, file này bị Git bỏ qua.
@@ -130,7 +132,7 @@ cAdvisor và Promtail cần quyền truy cập host để đọc metrics/log Doc
 
 ## Ba mốc commit
 
-Đủ3mốc đã chạy đạt trên Ubuntu VM, lưu cùng lịch sử ở Windows/VM; xem `git log -3 --oneline`. Không tự push khi chưa chốt repository. GĐ7–8 còn kiểm tra hardening và bàn giao báo cáo cuối.
+Đủ ba mốc đã chạy đạt trên Ubuntu VM, lưu cùng lịch sử Windows/VM; lọc bằng `git log --oneline --grep='^feat: milestone '`. Bản sửa hardening GĐ7 lưu commit riêng sau ba mốc, không amend/rebase. GĐ8 còn bàn giao báo cáo cuối; không tự push khi chưa chốt repository.
 
 ```text
 Commit 1: feat: milestone 1 - LinhChat, PostgreSQL and Nginx

@@ -29,7 +29,7 @@
             <a role="menuitem" href="{{ url_for('profiles.my_profile') }}">Xem hồ sơ cá nhân</a>
             <a role="menuitem" href="{{ url_for('profiles.my_profile', tab='security') }}">Đổi mật khẩu</a>
             <a role="menuitem" href="{{ url_for('web.account') }}">Cài đặt</a>
-            <form method="post" action="{{ url_for('web.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button role="menuitem" class="menu-logout">Đăng xuất</button></form>
+            <form method="post" action="{{ url_for('web.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button role="menuitem" class="menu-logout" title="Đăng xuất tất cả phiên của tài khoản này">Đăng xuất</button></form>
           </div>
         </div>
       </div>
@@ -51,7 +51,7 @@
     </a>
     <form method="post" action="{{ url_for('web.logout') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button class="secondary compact" aria-label="Đăng xuất">Thoát</button>
+      <button class="secondary compact" aria-label="Đăng xuất" title="Đăng xuất tất cả phiên của tài khoản này">Thoát</button>
     </form>
   </aside>
   <script src="{{ url_for('static', filename='vendor/socket.io.min.js') }}"></script>
