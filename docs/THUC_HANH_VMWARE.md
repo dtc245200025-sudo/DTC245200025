@@ -114,7 +114,7 @@ Gửi thêm tin nhắn để số tin nhóm/riêng tăng; đây là bộ đếm 
 
 ## Giai đoạn 6 Logging
 
-Chưa triển khai/chạy đạt; lệnh/truy vấn dưới đây là kế hoạch, chưa dùng làm minh chứng. Chờ người dùng chụp GĐ5, bổ sung và kiểm tra cấu hình/datasource trước khi thực hiện.
+Đã chạy đạt sau khi người dùng xác nhận chụpGĐ5:146/146test,3LogQL,canary/persistence và monitoring11service. Hướng dẫn một ảnh chính/một ảnh tùy chọn, chuẩn bị log mới và đoạn báo cáo ở `docs/GD6_LOGGING_VA_BAO_CAO.md`.
 
 ```bash
 docker compose --profile monitoring --profile logging up -d
@@ -124,12 +124,12 @@ docker compose --profile monitoring --profile logging ps
 Trong Grafana Explore chọn Loki, khoảng thời gian 15 phút gần nhất. Gửi thêm một tin nhắn rồi chạy lần lượt:
 
 ```logql
-{service="app"}
-{service="app"} |= "chat_message_saved"
-{service="nginx"} |= "GET /healthz"
+{service="app"} |~ "chat_message_saved|direct_message_saved|chat_attachment_saved"
+{service="nginx"} | json | route="/healthz" | status=200
+{service="app"} | json | event="http_request_rejected" | status>=400
 ```
 
-Ảnh `06a-app-logs.png`, `06b-message-logs.png`, `06c-nginx-logs.png`: mỗi truy vấn phải hiển thị dòng log thực tế. Log gửi tin nhắn chứa ID, không ghi nội dung tin nhắn/mật khẩu. Đây là mốc commit 3 sau khi kiểm tra đạt.
+Không cần3ảnh. Chụp ảnh log gửi tin/upload và tùy chọn ảnh yêu cầu bị từ chối; cả3truyvấn đã kiểm tra có dữ liệu. Log gửi tin chứa ID, không chứa nội dung/mật khẩu. Mốc commit3 đã lưu; chờ chụpGĐ6 trước auditGĐ7. `bash scripts/check-phase6.sh` kiểm tra lại; `bash scripts/prepare-phase6-evidence.sh` tạo dữ liệu synthetic mới nếu log thử đã quá15phút.
 
 ## Giai đoạn 7 Hardening
 
@@ -156,7 +156,7 @@ Kết quả mong muốn: app/Nginx UID khác 0; PostgreSQL không có published 
 
 ## Giai đoạn 8 README Demo Báo cáo
 
-Báo cáo chỉ ghi kết quả đã có minh chứng. Chọn ảnh Giai đoạn1–7, sơ đồ kiến trúc, mô hình dữ liệu cập nhật theo `models.py`, cách triển khai, ba mốc commit, truy vấn metrics/log và giới hạn hardening. Tổng10–15trang; monitoring đã chạy đạt, logging chưa chạy nên chưa viết kết quả logging hoàn thành.
+Báo cáo chỉ ghi kết quả đã có minh chứng. Chọn ảnh Giai đoạn1–7, sơ đồ kiến trúc, mô hình dữ liệu cập nhật theo `models.py`, cách triển khai, ba mốc commit, truy vấn metrics/log và giới hạn hardening. Tổng10–15trang; monitoring/logging đã chạy đạt, auditGĐ7 và bàn giaoGĐ8 chưa xong.
 
 Kịch bản demo: khởi động Compose, đăng nhập hai user, tạo phòng/gửi tin, xem dữ liệu pgAdmin, Prometheus targets, Grafana dashboard, ba truy vấn LogQL và kiểm tra non-root.
 

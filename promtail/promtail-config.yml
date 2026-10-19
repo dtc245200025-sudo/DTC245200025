@@ -1,0 +1,54 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /var/lib/promtail/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+        filters:
+          - name: label
+            values: ["com.docker.compose.project=de32-chat"]
+    relabel_configs:
+      - source_labels: [__meta_docker_container_label_com_docker_compose_project]
+        regex: de32-chat
+        action: keep
+      - source_labels: [__meta_docker_container_label_com_docker_compose_service]
+        regex: app|nginx
+        action: keep
+      - source_labels: [__meta_docker_container_label_com_docker_compose_oneoff]
+        regex: True|true
+        action: drop
+      - source_labels: [__meta_docker_container_label_com_docker_compose_service]
+        target_label: service
+    pipeline_stages:
+      - drop:
+          older_than: 1h
+          drop_counter_reason: historic_before_logging_lab
+      # docker_sd already unwraps Docker's log stream. Keep only safe JSON events.
+      - match:
+          selector: '{service=~"app|nginx"} !~ "^[{]"'
+          action: drop
+          drop_counter_reason: non_audit_json
+      - json:
+          expressions:
+            level: level
+            event: event
+      - labels:
+          level:
+          event:
+      - match:
+          selector: '{service="app",event!~"chat_message_saved|direct_message_saved|chat_attachment_saved|http_request_rejected|application_event|application_error"}'
+          action: drop
+          drop_counter_reason: unknown_app_event
+      - match:
+          selector: '{service="nginx",event!="http_access"}'
+          action: drop
+          drop_counter_reason: unknown_web_event

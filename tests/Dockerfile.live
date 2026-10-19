@@ -17,5 +17,6 @@ COPY verify_nginx_live.py ./
 COPY verify_nginx_persistence.py ./
 COPY verify_monitoring.py ./
 COPY verify_monitoring_activity.py ./
+COPY verify_logging_activity.py ./
 USER 10001:10001
 CMD ["python", "-u", "verify_live_chat.py"]

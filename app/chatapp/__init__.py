@@ -48,7 +48,8 @@ def create_app(test_config=None):
         )
     if os.getenv("APP_ENV") == "production" and app.config["SECRET_KEY"] == "development-only-key":
         raise RuntimeError("SECRET_KEY must be configured for production")
-    app.logger.setLevel(logging.INFO)
+    from .safe_logging import configure
+    configure(app.logger)
 
     db.init_app(app)
     csrf.init_app(app)
@@ -86,6 +87,8 @@ def create_app(test_config=None):
             response.headers["Cache-Control"] = "no-store"
         endpoint = request.endpoint or "unknown"
         HTTP_REQUESTS.labels(request.method, endpoint, response.status_code).inc()
+        if response.status_code >= 400:
+            app.logger.warning("http_request_rejected endpoint=%s status=%s", endpoint, response.status_code)
         if hasattr(request, "_started_at"):
             HTTP_LATENCY.labels(endpoint).observe(time.perf_counter() - request._started_at)
         return response

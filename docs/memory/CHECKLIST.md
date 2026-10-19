@@ -43,7 +43,7 @@
 - [x] Commit mốc1 với nội dung đã chạy đạt, không bí mật.
 - [x] Người dùng xác nhận đã chụp GĐ4 ngày18/10/2026.
 
-## GĐ5 — đã chạy đạt, chờ người dùng chụp
+## GĐ5 — đã chạy đạt và người dùng đã chụp
 
 - [x] Sao lưu trước triển khai, ghim phiên bản/digest image chính thức; không thay DB/app nền.
 - [x] Prometheus5/5target UP, PostgreSQL/Nginx exporter hoạt động; role exporter pg_monitor không superuser.
@@ -54,11 +54,24 @@
 - [x] Giới hạn RAM/TSDB, healthcheck; cổng quản trị localhost, exporter không published.
 - [x] Kiểm tra trình duyệt thật, hướng dẫn tối đa2ảnh và đoạn báo cáo ngắn.
 - [x] Commit mốc2 với thành phần đã chạy đạt, không secret; chưa push.
-- [ ] Người dùng xác nhận đã chụp GĐ5. Chờ trước khi chuyển GĐ6.
+- [x] Người dùng xác nhận đã chụp GĐ5 ngày19/10/2026; cho phép tiếp tục GĐ6.
 
-## GĐ6–8
+## GĐ6 — đã chạy đạt, chờ người dùng chụp
 
-- [ ] GĐ6 Loki/Promtail có log thật, ba truy vấn LogQL; commit3.
+- [x] Backup trước triển khai; image Loki/Promtail chính thức ghimdigest, không thay DB.
+- [x] AppJSON allowlist; Nginxroutecốđịnh, GunicornkhôngURL/query; xoaylogDocker10MB×3.
+- [x] Promtail chỉ project/app/nginx, bỏone-off/non-audit; Loki+positionsvolume.
+- [x] Log thật từ chat nhóm/riêng/upload/HTTP,3LogQL qua Loki và GrafanaAPI có dữ liệu.
+- [x] Canary nội dung/tên file/query/path/UA và secret.env không xuất hiện trong mẫu log.
+- [x] 146/146test; dữ liệu/tệp/receipt/quyền cũ còn sau cập nhậtapp.
+- [x] Recreate Loki/Promtail: log snapshot còn, không lặp kết quả; positions còn.
+- [x] Monitoring5/5UP,11panel,CPU/RAM11service sau thêmlogging.
+- [x] Xác minh giao diện Explore và hướng dẫn một ảnh chính/một ảnh tùy chọn.
+- [x] Commit mốc3 có thành phần chạy đạt, không secret; chưa push.
+- [ ] Người dùng xác nhận đã chụp GĐ6; chờ trước GĐ7.
+
+## GĐ7–8
+
 - [ ] GĐ7 audit non-root/mạng/role DB/CSRF/headers/rate limit/secret; đối chiếu phạm vi HTTPS.
 - [ ] GĐ8 README/source/demo cuối, mô hình dữ liệu cập nhật, lịch sử3commit và báo cáo10–15trang.
 - [ ] Đánh lại số hình trùng khi người dùng hoàn thiện báo cáo; chưa tự sửa Demo.docx.

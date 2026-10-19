@@ -57,6 +57,7 @@ def main():
     parser.add_argument("--save", help="Optional numeric evidence for persistence check")
     parser.add_argument("--persistence", help="Numeric evidence file saved before monitoring restart")
     parser.add_argument("--prepare-access", action="store_true")
+    parser.add_argument("--with-logging", action="store_true")
     args = parser.parse_args()
     values = env_values(args.env)
     auth = (values["GRAFANA_ADMIN_USER"], values["GRAFANA_ADMIN_PASSWORD"])
@@ -77,8 +78,11 @@ def main():
     print("[OK] Prometheus 5/5 UP: cadvisor, chat-app, nginx, postgres, prometheus")
     for metric in ("container_memory_working_set_bytes", "container_cpu_usage_seconds_total"):
         rows = check_values(f'sum by (service) ({metric}{{job="cadvisor",service!=""}} and on (id,instance,job) {CURRENT})')
-        assert {row["metric"]["service"] for row in rows} == SERVICES, "CPU/RAM missing a project service"
-    print("[OK] CPU/RAM cua 9 service, chi project nay; bo container one-off")
+        observed = {row["metric"]["service"] for row in rows}
+        assert SERVICES <= observed, "CPU/RAM missing a monitoring service"
+        if args.with_logging:
+            assert observed == SERVICES | {"loki", "promtail"}, "CPU/RAM missing logging service"
+    print(f"[OK] CPU/RAM cua {len(observed)} service, chi project nay; bo container one-off")
     assert float(check_values('pg_up{job="postgres"}')[0]["value"][1]) == 1
     assert float(check_values('nginx_up{job="nginx"}')[0]["value"][1]) == 1
     health = api(GRAFANA, "/api/health"); assert health["database"] == "ok"

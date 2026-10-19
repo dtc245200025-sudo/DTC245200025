@@ -1,6 +1,6 @@
 # Lộ trình Đề 32 và yêu cầu mở rộng LinhChat
 
-Giữ 8 giai đoạn của Đề 32, mở rộng Giai đoạn 3 thành các phần có thể kiểm tra và chụp minh chứng riêng. Hiện Giai đoạn1–5 đã chạy đạt, người dùng đã chụp GĐ4 ngày18/10/2026; chờ chụp GĐ5 trước khi tiếp tục logging. Các mục kết quả bên dưới ghi rõ từng mốc lịch sử.
+Giữ8giai đoạn, mở rộngGĐ3 theo yêu cầu LinhChat. HiệnGĐ1–6 đã chạy đạt, người dùng xác nhận chụpGĐ5 ngày19/10/2026; chờ chụpGĐ6 trước auditGĐ7. Các mục kết quả bên dưới ghi rõ từng mốc lịch sử.
 
 | Giai đoạn | Công việc và tiêu chí hoàn thành | Minh chứng |
 |---|---|---|
@@ -13,8 +13,8 @@ Giữ 8 giai đoạn của Đề 32, mở rộng Giai đoạn 3 thành các ph�
 | 3.4a Chat riêng và đang nhập | Đã triển khai trên VM: chat riêng từ Bạn bè, danh sách hội thoại/lịch sử PostgreSQL, đồng bộ lại và chống gửi trùng; chỉ hai tài khoản truy cập; đang nhập realtime ở riêng/nhóm | 98/98 kiểm thử, DIRECT34A_LIVE_CHECK_OK và DIRECT34A_PERSISTENCE_OK; trình duyệt hai chiều và sáng/tối đạt; một Hình 8 tùy chọn theo docs/GD34A_CHAT_RIENG_VA_MINH_CHUNG.md |
 | 3.4b Tin nhắn nâng cao | Đã triển khai trên VM: đã nhận/đã xem và thời gian chi tiết; tìm tin/nội dung/tên tệp; emoji/gợi ý; ảnh/file tối đa 10 MiB cho nhóm/riêng, tải xuống kiểm tra quyền | 131/131 kiểm thử, MESSAGES34B_LIVE_CHECK_OK, MESSAGES34B_PERSISTENCE_OK; trình duyệt kiểm tra file/ảnh/emoji/thời gian/tìm kiếm/sáng-tối; tối đa một ảnh tổng hợp theo docs/GD34B_TIN_NHAN_VA_BAO_CAO.md |
 | 4 Compose và Nginx | Đã triển khai: Nginx cổng 80, HTTP/WebSocket/polling, file đúng 10 MiB, thông báo, 4 headers, rate limit; app/DB không published; dữ liệu/file/unread còn sau recreate | 142/142 kiểm thử trên VM; NGINX4_LIVE_CHECK_OK, NGINX4_PERSISTENCE_OK, NGINX4_RATE_LIMIT_OK; commit1; người dùng đã chụp |
-| 5 Monitoring | Đã chạy đạt: metrics HTTP/chat/socket/upload, Prometheus/cAdvisor/exporter DB/Nginx, Grafana11panel và CPU/RAM9service; volume lưu lịch sử | 143/143test,5/5target UP, MONITORING_ACTIVITY_OK, MONITORING_PERSISTENCE_OK; commit2; chờ tối đa2ảnh theo docs/GD5_MONITORING_VA_BAO_CAO.md |
-| 6 Logging | Loki/Promtail thu log app/Nginx; truy vấn chat/upload/lỗi quyền; không ghi mật khẩu, nội dung file hoặc token mời | LogQL có dữ liệu thực tế, commit 3 |
+| 5 Monitoring | Đã chạy đạt: HTTP/chat/socket/upload, exporter DB/Nginx/cAdvisor, Grafana11panel; CPU/RAM9service ở mốc5,11service sauGĐ6 | 143/143test tại mốc5,5/5UP,activity/persistence; commit2; người dùng đã chụp |
+| 6 Logging | Đã chạy đạt: Loki/Promtail curatedaudit app/Nginx;3query chat/upload/web/yêu cầu bị từ chối; không ghi nội dung/secret trong mẫu thử | 146/146test,LOGGING_ACTIVITY_OK,LOGGING_PERSISTENCE_OK,canary/secretcheck; commit3; chờ ảnh theo docs/GD6_LOGGING_VA_BAO_CAO.md |
 | 7 Hardening | Kiểm tra non-root, mạng nội bộ, role DB hạn chế, secret; session/CSRF; quyền phòng và file riêng tư; kiểm tra kích thước/nội dung upload; headers, rate limit và HTTPS nếu đề yêu cầu | Các kiểm tra cho phép/từ chối, Docker và HTTP headers |
 | 8 README Demo Báo cáo | Hướng dẫn bản cuối, sơ đồ dữ liệu cập nhật, kịch bản demo, ảnh đúng phiên bản LinhChat, báo cáo theo file đề gốc | README, lịch sử 3 mốc commit, minh chứng và báo cáo |
 
@@ -24,7 +24,7 @@ Giữ 8 giai đoạn của Đề 32, mở rộng Giai đoạn 3 thành các ph�
 2. Giai đoạn 5: monitoring chạy đạt.
 3. Giai đoạn 6: logging chạy đạt.
 
-Các biện pháp bảo vệ dữ liệu được triển khai cùng tính năng; Giai đoạn7 là bước kiểm tra hardening tổng thể. Không commit `.env`, mật khẩu demo, dữ liệu upload, backup hoặc file riêng tư. Mốc1 và2 đã có: `feat: milestone 1 - LinhChat, PostgreSQL and Nginx` và `feat: milestone 2 - Prometheus and Grafana monitoring`; xem hash bằng `git log -2 --oneline`. Chưa push GitHub, cần chốt repository đích. Trí nhớ cập nhật ở `MEMORY.md` và `docs/memory/`.
+Các biện pháp bảo vệ dữ liệu được triển khai cùng tính năng; Giai đoạn7 là audit tổng thể. Không commit.env/mật khẩu/data/backup. Đủ3mốc ứng dụng-Nginx,monitoring,logging đã chạy đạt; xem `git log -3 --oneline`. Chưa pushGitHub, cần người dùng chốt repository. Trí nhớ ởMEMORY.md vàdocs/memory/.
 
 ## Quy ước kiểm tra và ảnh
 
@@ -82,4 +82,8 @@ Hướng dẫn ngắn, một ảnh và chú thích báo cáo: `docs/GD33B_BAN_BE
 
 ## Kết quả Giai đoạn5 Monitoring
 
-Prometheus5/5target UP, Grafana LinhChat Overview11panel có dữ liệu thực tế, CPU/RAM9service. Đã thử hai client gửi6tin gồm2tệp và quan sát metrics tăng; sau tạo lại Prometheus/Grafana mẫu lịch sử và provisioning còn nguyên. Bộ kiểm thử143/143đạt trên VM; dữ liệu app cũ vẫn còn. Mốc2 đã lưu, chưa push. Hướng dẫn chụp tối đa2ảnh và đoạn báo cáo ở `docs/GD5_MONITORING_VA_BAO_CAO.md`. Chờ người dùng chụp trước GĐ6; logging chưa chạy.
+Prometheus5/5target UP, Grafana LinhChat Overview11panel có dữ liệu thực tế, CPU/RAM9service tại mốc5. Đã thử hai client gửi6tin gồm2tệp và quan sát metrics tăng; sau tạo lại Prometheus/Grafana mẫu lịch sử/provisioning còn nguyên. Bộ143/143test tại mốc5. Người dùng đã chụpGĐ5 ngày19/10, sau đó tiếp tụcGĐ6.
+
+## Kết quả Giai đoạn6 Logging
+
+Loki3.6.18/Promtail3.6.7 ghimdigest,11service chạy. AppJSON allowlist/Nginxroutecốđịnh, không nội dung/secret trong mẫu;3query LogQL qua Loki/Grafana có log thật. Recreate hai agent/storage giữ log snapshot/positions, dữ liệu app cũ còn. 146/146testđạt; monitoring5/5UP/11panel vàCPU/RAM11service. Commit3 đã lưu, chưapush. Hướng dẫn một ảnh chính/một ảnh tùy chọn và đoạn báo cáo ở `docs/GD6_LOGGING_VA_BAO_CAO.md`; chờ chụp trước auditGĐ7. PromtailEOL và quyềnDockerAPI là giới hạn phải ghi rõ.

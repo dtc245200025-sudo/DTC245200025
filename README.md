@@ -2,13 +2,13 @@
 
 ## Trạng thái mới nhất
 
-Giai đoạn1–5 đã triển khai trên Ubuntu VMware. Người dùng xác nhận đã chụp GĐ4 ngày18/10/2026. Nginx tại `http://localhost` trong Ubuntu hoặc IP VM cổng80; không dùng `:5000`. App/PostgreSQL không published cổng host; pgAdmin vẫn localhost5050. Monitoring có5/5target UP và dashboard **LinhChat Overview** với11panel, CPU/RAM9service. Chụp tối đa2ảnh theo `docs/GD5_MONITORING_VA_BAO_CAO.md`; kiểm tra bằng `bash scripts/check-phase5.sh`. Chờ xác nhận đã chụp GĐ5 trước khi triển khai logging.
+Giai đoạn1–6 đã triển khai trên Ubuntu VMware. Người dùng xác nhận đã chụp GĐ5 ngày19/10/2026. Hiện11service hoạt động với monitoring và logging. Nginx public80, app/DB không published; pgAdminlocalhost5050, Grafanalocalhost3000, Prometheuslocalhost9090; Loki/Promtail không publish cổng host. Hướng dẫn chụp một ảnh chính, một ảnh tùy chọn và đoạn báo cáo: `docs/GD6_LOGGING_VA_BAO_CAO.md`. Chờ chụp GĐ6 trước auditGĐ7.
 
 Trí nhớ dự án: đọc `MEMORY.md`, yêu cầu/ý tưởng ở `docs/memory/REQUIREMENTS.md`, tiến trình ở `docs/memory/PROGRESS.md`, checklist ở `docs/memory/CHECKLIST.md`. Cập nhật sau mỗi giai đoạn. Không lưu secret trong các file này. Người dùng đã xác nhận thông báo tin nhắn mới hoạt động. Unread được lưu theo receipt trong PostgreSQL; toast/badge cập nhật trên mọi trang, nhận đầy đủ tin mới xác nhận delivered; GET và đóng toast không đánh dấu seen.
 
-Bản cuối GĐ5 đạt143/143kiểm thử trên Ubuntu container, `MONITORING_ACTIVITY_OK`, `MONITORING_PERSISTENCE_OK`, `MESSAGES34B_PERSISTENCE_OK`; đã kiểm tra giao diện Grafana thật. GĐ4 trước đó đạt142/142test cùng `NGINX4_LIVE_CHECK_OK`, `NGINX4_PERSISTENCE_OK`, `NGINX4_RATE_LIMIT_OK`, `NOTIFICATIONS_PERSISTENCE_OK`. Hai mốc commit đã có; xem `git log -2 --oneline` để lấy hash thực tế. Cấu hình WebSocket theo [tài liệu Nginx](https://nginx.org/en/docs/http/websocket.html); thông số upload được kiểm tra bằng tệp thật qua proxy.
+Bản cuối GĐ6 đạt146/146test trên VM, LOGGING_ACTIVITY_OK, LOGGING_PERSISTENCE_OK, MESSAGES34B_PERSISTENCE_OK;3LogQL qua Grafana có log thật và kiểm tra canary/secret không lộ trong mẫu. Monitoring vẫn5/5UP,11panel, CPU/RAM đủ11service. Kết quảGĐ5143test/GĐ4142test là lịch sử mốc trước. Ba mốc commit đã có, xem `git log -3 --oneline`; chưa push.
 
-Logging/hardening tổng thể còn ở GĐ6–7. Profile monitoring đã chạy đạt và có trong mốc2; cấu hình chi tiết logging chưa commit và chưa chạy, không bật trước mốc tương ứng. Các số test22/38/55/70/98/131 ở phần lịch sử bên dưới là kết quả tại mốc đó, không phải bộ kiểm thử mới nhất. Chưa push lên GitHub; chưa có repository đích được chốt.
+Hardening tổng thể và báo cáo cuối cònGĐ7–8. Mốc2monitoring/mốc3logging đã chạy đạt; các số test22/38/55/70/98/131 bên dưới là lịch sử, không phải bộ mới nhất. Chưa có repositoryGitHub đích được chốt, không tự push.
 
 ## Mở rộng LinhChat
 
@@ -32,7 +32,7 @@ Sau tạo lại app, MESSAGES34B_PERSISTENCE_OK, DIRECT34A_PERSISTENCE_OK, FRIEN
 
 Ứng dụng chat nội bộ có đăng ký, đăng nhập, tạo và tham gia phòng, nhắn tin realtime và lưu lịch sử trong PostgreSQL. Toàn bộ hệ thống được đóng gói bằng Docker Compose cho Ubuntu trong VMware.
 
-Giai đoạn1–5 đã chạy trên Ubuntu VMware; logging chưa chạy. Đã đối chiếu đề gốc; Bạn bè/Profile/tin nhắn nâng cao là phần mở rộng theo yêu cầu người dùng. Đã đọc nội dung Demo.docx để hướng dẫn báo cáo gọn; chưa sửa file Word hoặc xác minh dàn trang. Xem `docs/THUC_HANH_VMWARE.md` để thực hành và chụp ảnh.
+Giai đoạn1–6 đã chạy trên Ubuntu VMware. Đã đối chiếu đề gốc; Bạn bè/Profile/tin nhắn nâng cao là phần mở rộng theo yêu cầu người dùng. Đã đọc nội dung Demo.docx để hướng dẫn báo cáo gọn; chưa sửa file Word hoặc xác minh dàn trang. Xem `docs/THUC_HANH_VMWARE.md` để thực hành và chụp ảnh.
 
 Bản xem thử Giai đoạn 2 dùng `docker compose -f compose.phase2.yml up -d --wait`, mở `http://localhost:5000/login` trong Ubuntu rồi chạy `bash scripts/check-phase2.sh`. Database bản xem thử nằm trong bộ nhớ và mất khi container dừng. Bản triển khai chính bên dưới dùng PostgreSQL qua `compose.yml`.
 
@@ -65,8 +65,8 @@ Nếu Docker chưa có, cài theo tài liệu chính thức: <https://docs.docke
 ```bash
 bash scripts/init-env.sh
 docker compose config --quiet
-docker compose --profile monitoring up -d --build
-docker compose --profile monitoring ps
+docker compose --profile monitoring --profile logging up -d --build
+docker compose --profile monitoring --profile logging ps
 ```
 
 Script tạo secret ngẫu nhiên và không ghi đè `.env` đã có. Nếu dùng `.env.example` thủ công, phải thay toàn bộ giá trị `change_me_...`. Không commit hoặc chụp ảnh `.env`. Lệnh `config --quiet` tránh in secret.
@@ -103,15 +103,17 @@ nginx_up
 
 ## Logging
 
-Giai đoạn6 chưa triển khai. Chưa có Loki datasource trong Grafana. Sau khi bổ sung/kiểm tra cấu hình logging ở mốc tiếp theo mới bật `docker compose --profile monitoring --profile logging up -d` và thực hiện các truy vấn dự kiến:
+Giai đoạn6 đã chạy đạt. Khởi động phần đã làm bằng `docker compose --profile monitoring --profile logging up -d`. Grafana Explore chọn **Loki**, chuyển **Code**, Last15minutes và chạy3truyvấn:
 
 ```logql
-{service="app"}
-{service="app"} |= "chat_message_saved"
-{service="app"} |~ "(?i)error|exception"
+{service="app"} |~ "chat_message_saved|direct_message_saved|chat_attachment_saved"
+{service="nginx"} | json | route="/healthz" | status=200
+{service="app"} | json | event="http_request_rejected" | status>=400
 ```
 
 Promtail đã ngừng vòng đời upstream nhưng vẫn được giữ theo stack người dùng đã chốt. Tham khảo [Grafana Promtail](https://grafana.com/docs/loki/latest/send-data/promtail/).
+
+Hướng dẫn đầy đủ và giới hạn: `docs/GD6_LOGGING_VA_BAO_CAO.md`. Loki/Promtail có volume dữ liệu/positions, giới hạnRAM512m/128m; retention7ngày là cấu hình, không là giới hạndiskfree. Promtail bỏ replay>1h; không cam kết lưu đủ log khi ngừng lâu. Chỉ curatedaudit app/Nginx, không toàn bộ stacktrace/DBlogs. Docker socketro vẫn cấp quyền mạnh. Kiểm tra lại bằng `bash scripts/check-phase6.sh`; cần log mới để chụp thì `bash scripts/prepare-phase6-evidence.sh` (tạo thêm dữ liệu synthetic, không xóa cũ).
 
 ## Hardening đã cấu hình và cần xác minh trên VM
 
@@ -128,12 +130,12 @@ cAdvisor và Promtail cần quyền truy cập host để đọc metrics/log Doc
 
 ## Ba mốc commit
 
-Mốc1 và2 đã chạy đạt trên Ubuntu VM, được lưu ở cả Windows và VM; xem `git log -2 --oneline`. Mốc3 logging chưa có. Không đưa cấu hình chưa chạy vào một mốc đã xác nhận, không tự push khi chưa chốt repository.
+Đủ3mốc đã chạy đạt trên Ubuntu VM, lưu cùng lịch sử ở Windows/VM; xem `git log -3 --oneline`. Không tự push khi chưa chốt repository. GĐ7–8 còn kiểm tra hardening và bàn giao báo cáo cuối.
 
 ```text
 Commit 1: feat: milestone 1 - LinhChat, PostgreSQL and Nginx
 Commit 2: feat: milestone 2 - Prometheus and Grafana monitoring
-Commit 3 (dự kiến): logging Loki và Promtail sau khi chạy đạt
+Commit 3: feat: milestone 3 - Loki and Promtail centralized logging
 ```
 
 Không dùng `git add .env` và luôn kiểm tra `git status` trước khi commit.
@@ -141,8 +143,8 @@ Không dùng `git add .env` và luôn kiểm tra `git status` trước khi commi
 ## Dừng và khôi phục
 
 ```bash
-docker compose --profile monitoring down
-docker compose --profile monitoring up -d
+docker compose --profile monitoring --profile logging down
+docker compose --profile monitoring --profile logging up -d
 ```
 
 Không dùng `docker compose down -v` nếu muốn giữ dữ liệu PostgreSQL, Grafana và Prometheus.
