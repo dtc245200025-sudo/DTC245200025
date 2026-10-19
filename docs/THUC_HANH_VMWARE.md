@@ -158,6 +158,8 @@ Kết quả mong muốn: app/Nginx UID khác 0; PostgreSQL không có published 
 
 ## Giai đoạn 8 README Demo Báo cáo
 
+Ngày19/10 người dùng xác nhận đã chụp GĐ7 đến Hình12. Tiếp theo **Hình13**, hướng dẫn ở `docs/GD8_BAN_GIAO_VA_BAO_CAO.md`; chạy `bash scripts/check-phase8.sh` để kiểm tra bàn giao. Kiến trúc/10bảng ở `docs/KIEN_TRUC_VA_DU_LIEU.md`, demo5–7phút ở `docs/KICH_BAN_DEMO.md`. `bash scripts/test-unit.sh` chạy bộpytest riêng trong container không network/.env/DBvolume. Chưa tự sửaWord hoặc pushGitHub; localOK không là đã nộp bài.
+
 Báo cáo chỉ ghi kết quả đã có minh chứng. Chọn ảnh Giai đoạn1–7, sơ đồ kiến trúc, mô hình dữ liệu cập nhật theo `models.py`, cách triển khai, ba mốc commit, truy vấn metrics/log và giới hạn hardening. Tổng10–15trang; monitoring/logging/auditGĐ7 đã đạt, bàn giaoGĐ8 chưa xong. Ba commit mốc giữ nguyên; fixGĐ7 lưu riêng, xem toàn bộ `git log --oneline`.
 
 Kịch bản demo: khởi động Compose, đăng nhập hai user, tạo phòng/gửi tin, xem dữ liệu pgAdmin, Prometheus targets, Grafana dashboard, ba truy vấn LogQL và kiểm tra non-root.

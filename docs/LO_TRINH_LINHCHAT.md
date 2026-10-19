@@ -1,6 +1,6 @@
 # Lộ trình Đề 32 và yêu cầu mở rộng LinhChat
 
-Giữ 8 giai đoạn, mở rộng GĐ3 theo yêu cầu LinhChat. GĐ1–7 đã chạy đạt; người dùng gửi ảnh GĐ6 hợp lệ và yêu cầu GĐ7 ngày19/10/2026. Chờ chụp GĐ7 trước bàn giao GĐ8. Các mục bên dưới ghi rõ kết quả từng mốc lịch sử.
+Giữ 8 giai đoạn, mở rộng GĐ3 theo yêu cầu LinhChat. GĐ1–7 đã chạy đạt; người dùng xác nhận ảnh GĐ7 là Hình12 ngày19/10/2026. GĐ8 phầncụcbộđãkiểmtrađạt, ảnh tiếp theo Hình13 theo docs/GD8_BAN_GIAO_VA_BAO_CAO.md. GitHub/Wordcuối chưa chốt, không coi đã nộp bài. Các mục bên dưới ghi rõ kết quả từng mốc lịch sử, kể cả hướng dẫn chụp cũ.
 
 | Giai đoạn | Công việc và tiêu chí hoàn thành | Minh chứng |
 |---|---|---|
@@ -14,9 +14,9 @@ Giữ 8 giai đoạn, mở rộng GĐ3 theo yêu cầu LinhChat. GĐ1–7 đã c
 | 3.4b Tin nhắn nâng cao | Đã triển khai trên VM: đã nhận/đã xem và thời gian chi tiết; tìm tin/nội dung/tên tệp; emoji/gợi ý; ảnh/file tối đa 10 MiB cho nhóm/riêng, tải xuống kiểm tra quyền | 131/131 kiểm thử, MESSAGES34B_LIVE_CHECK_OK, MESSAGES34B_PERSISTENCE_OK; trình duyệt kiểm tra file/ảnh/emoji/thời gian/tìm kiếm/sáng-tối; tối đa một ảnh tổng hợp theo docs/GD34B_TIN_NHAN_VA_BAO_CAO.md |
 | 4 Compose và Nginx | Đã triển khai: Nginx cổng 80, HTTP/WebSocket/polling, file đúng 10 MiB, thông báo, 4 headers, rate limit; app/DB không published; dữ liệu/file/unread còn sau recreate | 142/142 kiểm thử trên VM; NGINX4_LIVE_CHECK_OK, NGINX4_PERSISTENCE_OK, NGINX4_RATE_LIMIT_OK; commit1; người dùng đã chụp |
 | 5 Monitoring | Đã chạy đạt: HTTP/chat/socket/upload, exporter DB/Nginx/cAdvisor, Grafana11panel; CPU/RAM9service ở mốc5,11service sauGĐ6 | 143/143test tại mốc5,5/5UP,activity/persistence; commit2; người dùng đã chụp |
-| 6 Logging | Đã chạy đạt: Loki/Promtail curatedaudit app/Nginx;3query chat/upload/web/yêu cầu bị từ chối; không ghi nội dung/secret trong mẫu thử | 146/146test,LOGGING_ACTIVITY_OK,LOGGING_PERSISTENCE_OK,canary/secretcheck; commit3; chờ ảnh theo docs/GD6_LOGGING_VA_BAO_CAO.md |
-| 7 Hardening | Đã audit non-root/ro/capdrop/NNP/seccomp, mạng/role/secret/hash, CSRF/cookie/Origin/quyền/header/rate limit; sửa thu hồi phiên khi logout và header trùng | 152/152 test; HARDENING_INFRA_OK/LIVE_OK, persistence/monitoring/logging vẫn đạt; chờ một ảnh theo docs/GD7_HARDENING_VA_BAO_CAO.md |
-| 8 README Demo Báo cáo | Hướng dẫn bản cuối, sơ đồ dữ liệu cập nhật, kịch bản demo, ảnh đúng phiên bản LinhChat, báo cáo theo file đề gốc | README, lịch sử 3 mốc commit, minh chứng và báo cáo |
+| 6 Logging | Đã chạy đạt: Loki/Promtail curatedaudit app/Nginx;3query chat/upload/web/yêu cầu bị từ chối; không ghi nội dung/secret trong mẫu thử | 146/146test,LOGGING_ACTIVITY_OK,LOGGING_PERSISTENCE_OK,canary/secretcheck; commit3; người dùng đã chụp |
+| 7 Hardening | Đã audit non-root/ro/capdrop/NNP/seccomp, mạng/role/secret/hash, CSRF/cookie/Origin/quyền/header/rate limit; sửa thu hồi phiên khi logout và header trùng | 152/152 test; HARDENING_INFRA_OK/LIVE_OK; người dùng đã chụp Hình12 |
+| 8 README Demo Báo cáo | README/kiến trúc10bảng/demo5–7phút/guideHình13/scriptbàngiaođãkiểmtra; GitHub/Wordcuối còn cần chốt | 152test chạy lại đạt; GIAI_DOAN_8_LOCAL_OK; chờHình13, chưa push/chỉnhWord |
 
 ## Ba mốc commit
 

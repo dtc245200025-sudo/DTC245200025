@@ -70,7 +70,7 @@
 - [x] Commit mốc3 có thành phần chạy đạt, không secret; chưa push.
 - [x] Người dùng gửi ảnhGĐ6 hợp lệ và yêu cầu tiếp tụcGĐ7 ngày19/10/2026.
 
-## GĐ7 — đã chạy đạt, chờ người dùng chụp
+## GĐ7 — đã chạy đạt và người dùng đã chụp
 
 - [x] App/Nginx non-root/rootfsro/capdropALL/NoNewPrivs/seccomp; sourcehashkhớpcontainer.
 - [x] Cổngadminlocalhost, app/DB/collector khôngpublish; backendinternal, proxy/Grafana khôngvàomạngDB.
@@ -82,11 +82,15 @@
 - [x] 152/152unit; HARDENING_LIVE_OK/INFRA_OK vàpersistence/monitoring/loggingđạt.
 - [x] MộtảnhTerminal, đoạn báo cáo ngắn vàgiớihạnHTTP/DockerAPI đượcghi rõ.
 - [x] Giữ3commitmốcbanđầu, commitsửaGĐ7riêng; khôngpush.
-- [ ] Người dùng xác nhận đã chụpGĐ7; chờ trướcGĐ8.
+- [x] Người dùng gửi ảnh GĐ7 hợp lệ ngày19/10; xác nhận đến Hình12, tiếp theo Hình13.
 
 ## GĐ8
 
-- [ ] GĐ8 README/source/demo cuối, mô hình dữ liệu cập nhật, lịch sử3commit và báo cáo10–15trang.
+- [x] README/source và tài liệu kiến trúc/10bảng khớp models.py, demo5–7phút, guideHình13/ngân sách báo cáo10–15trang.
+- [x] Script bàn giao runtime/schema/hardening/5UP/11panel/3LogQL/3mốc chạy đạt trên VM; không tạo dữ liệu mới/không chạy lại logout lúc chụp.
+- [x] Chạy lại152/152pytest trong63.25s bằng container cùngimageapp, khôngnetwork/.env/DBvolume; không thay test SQLite bằng tuyên bố kiểm thử PostgreSQL.
+- [x] Tài liệu/source đồng bộ Windows/VM, ZIP khôngsecret; commitdocs riêng, khôngrewrite3mốc/chưapush.
+- [ ] Người dùng xác nhận đã chụpHình13 (GIAI_DOAN_8_LOCAL_OK).
 - [ ] Đánh lại số hình trùng khi người dùng hoàn thiện báo cáo; chưa tự sửa Demo.docx.
 - [ ] Chốt repository GitHub theo mã sinh viên và push03mốc trước nộp; hiện chưa có remote, không tự tạo/push.
 

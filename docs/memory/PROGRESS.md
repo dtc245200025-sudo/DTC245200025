@@ -1,5 +1,16 @@
 # Tiến trình và bằng chứng
 
+## 19/10/2026 — bắt đầu GĐ8 sau Hình12
+
+Người dùng gửi ảnh GĐ7 đủ HARDENING_INFRA_OK/GIAI_DOAN_7_OK và xác nhận đã đến Hình12; ảnh mới là Hình13. Đã đọc trí nhớ/lộ trình, xác minh Windows/VM cùng commitf578318 và trackedclean,11service đang chạy. Đang bổ sung kiến trúc/mô hình10bảng, kịch bảndemo5–7phút, guideGĐ8 vàscriptkiểmtrabàngiaođọc runtime; test-unit riêng dùngcontainer tạm khôngnetwork/.env/volumeDB. Không sửa app/DB, không push/GitHub hoặc sửaWord. Bàn giaoGitHub và số trang Word cuối vẫn cần người dùng chốt, không coi localOK là đã nộp.
+
+## 19/10/2026 — GĐ8 cục bộ chạy đạt, chờ Hình13/GitHub/Wordcuối
+
+- `bash scripts/test-unit.sh`: **152 passed in63.25s**, dùng image app hiện tại, source app/tests read-only, networknone, /tmptmpfs; không mount.env/volumeDB. Không sửa app/DB hoặc restart cácservice. Đây là regressionSQLite, không gọi là testPostgreSQL; các bằng chứng HTTP/SQL/WebSocket thật củaGĐ3–7 giữriêng.
+- `bash scripts/check-phase8.sh`: GIAI_DOAN_8_LOCAL_OK. Kiểmtra10/10bảngPostgreSQLkhớpmodels.py/tàiliệu,11servicerunning,hardening vàliveevidenceđúngimage/config,5UP/11panel/CPU-RAM11service,3LogQLquaLoki/Grafana; Gitba mốcđúngtiêudề/thứtự. ChạyđọcAPI/schema, khôngtạo tin hoặcđăngxuất. Khônginhash/cookie/data/secret; khi lỗi khôngxảoutputcủa tiếntrìnhcon vàoảnh.
+- Bổsung docs/KIEN_TRUC_VA_DU_LIEU.md, docs/KICH_BAN_DEMO.md, docs/GD8_BAN_GIAO_VA_BAO_CAO.md; README sửa hướngdẫn2phiêntrìnhduyệt (hai cửa sổprivatecóthểchungphiên). GĐ8guide chỉ mộtHình13, chúthích/đoạnngắn vàngânsách11–14trang; khôngkhẳngđịnh sốtrangWord đãrender.
+- Source/tàiliệulưucommitdocsriêng, giữ3mốcbanđầuvàfixGĐ7; đồngbộVM/WindowsvàZIPriêngkhôngsecret. Chưa push/remoteGitHub; ZIPkhôngGitkhôngthayrepositorynộp. ChờHình13vàMSSV/repođích/quyềnpush; chưa sửaDemo.docx, chưa xácminhdàntrang/đánhsốhìnhcuối. Chưa clean-install/restoreVMmới/TLS/pentest.
+
 ## 16/10/2026 — trạng thái lúc tạo file trí nhớ
 
 - GĐ1: Ubuntu/Git/Docker/Compose đã chạy, hello-world đạt; người dùng xác nhận đã chụp.

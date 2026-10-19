@@ -2,13 +2,15 @@
 
 ## Trạng thái mới nhất
 
-Giai đoạn 1–7 đã chạy đạt trên Ubuntu VMware. Người dùng đã gửi ảnh GĐ6 hợp lệ và yêu cầu GĐ7 ngày 19/10/2026. Hiện 11 service hoạt động; trong Docker chỉ Nginx public80, app/DB không published, các cổng quản trị bind localhost. GĐ7 đạt 152/152 test, audit hạ tầng/HTTP/WebSocket; hướng dẫn **một ảnh Terminal** và đoạn báo cáo ở `docs/GD7_HARDENING_VA_BAO_CAO.md`. Chờ chụp GĐ7 trước GĐ8.
+Giai đoạn 1–7 đã chạy đạt trên Ubuntu VMware; người dùng xác nhận ảnh GĐ7 là **Hình12** ngày19/10/2026. Hiện 11 service hoạt động; trong Docker chỉ Nginx public80, app/DB không published, các cổng quản trị bind localhost. Bản GĐ7 đạt152/152test, audit hạ tầng/HTTP/WebSocket. GĐ8 bổ sung tài liệu, demo và kiểm tra bàn giao; ảnh tiếp theo **Hình13**, không phải bắt đầu lại số ảnh.
 
 Trí nhớ dự án: đọc `MEMORY.md`, yêu cầu/ý tưởng ở `docs/memory/REQUIREMENTS.md`, tiến trình ở `docs/memory/PROGRESS.md`, checklist ở `docs/memory/CHECKLIST.md`. Cập nhật sau mỗi giai đoạn. Không lưu secret trong các file này. Người dùng đã xác nhận thông báo tin nhắn mới hoạt động. Unread được lưu theo receipt trong PostgreSQL; toast/badge cập nhật trên mọi trang, nhận đầy đủ tin mới xác nhận delivered; GET và đóng toast không đánh dấu seen.
 
 Bản GĐ7 đạt 152/152 test trên VM, HARDENING_INFRA_OK/HARDENING_LIVE_OK, NGINX4_RATE_LIMIT_OK và MESSAGES34B_PERSISTENCE_OK. Monitoring 5/5 UP, 11 panel/11 service; logging 3 LogQL vẫn có dữ liệu. GĐ6 đạt146/GĐ5 đạt143/GĐ4 đạt142 là kết quả lịch sử. Giữ nguyên ba commit mốc; bản fix hardening được lưu riêng, không rewrite. Xem `git log --oneline` hoặc `git log --oneline --grep='^feat: milestone '` để lọc ba mốc; chưa push.
 
-GĐ8 bàn giao cuối còn chờ; các số test trong phần lịch sử không phải bộ mới nhất. Chưa chốt repository GitHub, không tự push. GĐ7 là audit cấu hình/lab, không phải chứng nhận an toàn hoặc quét mọi CVE; HTTP chưa TLS, cAdvisor/Promtail có ngoại lệ quyền mạnh.
+Tài liệu bàn giao: [Kiến trúc và dữ liệu](docs/KIEN_TRUC_VA_DU_LIEU.md), [Demo5–7phút](docs/KICH_BAN_DEMO.md), [GĐ8/Hình13 và checklist nộp](docs/GD8_BAN_GIAO_VA_BAO_CAO.md). Kiểm tra runtime bằng `bash scripts/check-phase8.sh`; chạy riêng toàn bộtest bằng `bash scripts/test-unit.sh` (container tạm, không network/.env/volumeDB). Script bàn giao không tự chạy lại pytest hoặc thao tác logout, không chứng minh clean-install/restore trên VM mới. Các số test trong phần lịch sử dưới đây là tại mốc đó.
+
+Chưa chốt repository GitHub hoặc chỉnh báo cáo Word cuối, không tự push. ZIP source không chứa lịch sửGit, không dùng thayrepo nộp bài. GĐ7 là audit cấu hình/lab, không phải chứng nhận an toàn hoặc quét mọi CVE; HTTP chưa TLS, cAdvisor/Promtail có ngoại lệ quyền mạnh.
 
 ## Mở rộng LinhChat
 
@@ -84,11 +86,11 @@ Các trang quản trị mặc định chỉ mở tại localhost Ubuntu. Để t
 
 ## Kiểm tra chức năng
 
-1. Mở hai cửa sổ riêng tư, tạo hai tài khoản.
+1. Mở trình duyệt thường cho A và cửa sổ riêng tư hoặc trình duyệt khác cho B, tạo hai tài khoản. Hai cửa sổ riêng tư cùng một trình duyệt có thể dùng chung phiên đăng nhập.
 2. Tài khoản thứ nhất tạo phòng `General`; cả hai cùng mở phòng.
 3. Gửi tin nhắn ở cửa sổ thứ nhất và kiểm tra cửa sổ thứ hai nhận ngay.
 4. Mở pgAdmin, kết nối host `postgres`, port `5432`, database `chatdb`, tài khoản `chatuser` và mật khẩu `APP_DB_PASSWORD` trong `.env`; kiểm tra `users`, `rooms`, `room_members`, `messages`.
-5. Chạy `bash scripts/smoke-test.sh` sau khi bật monitoring. Bộ test tích hợp cục bộ không thay thế kiểm tra PostgreSQL thực tế.
+5. Chạy `bash scripts/check-phase8.sh` trên deployment đã có; `bash scripts/test-unit.sh` chạy toàn bộ pytest trong container tạm cùng image app, dùng database test riêng. Bộ này không thay thế các kiểm tra PostgreSQL/WebSocket thật. Script bàn giao yêu cầu bằng chứng riêng GĐ6/GĐ7 trong work; clone mới cần tạo lại bằng kiểm thử live, không sao chép bừa dữ liệu/secret.
 
 ## Monitoring
 
@@ -132,7 +134,7 @@ cAdvisor và Promtail cần quyền truy cập host để đọc metrics/log Doc
 
 ## Ba mốc commit
 
-Đủ ba mốc đã chạy đạt trên Ubuntu VM, lưu cùng lịch sử Windows/VM; lọc bằng `git log --oneline --grep='^feat: milestone '`. Bản sửa hardening GĐ7 lưu commit riêng sau ba mốc, không amend/rebase. GĐ8 còn bàn giao báo cáo cuối; không tự push khi chưa chốt repository.
+Đủ ba mốc đã chạy đạt trên Ubuntu VM, lưu cùng lịch sử Windows/VM; lọc bằng `git log --oneline --grep='^feat: milestone '`. Bản sửa hardening GĐ7 và tài liệu GĐ8 lưu commit riêng sau ba mốc, không amend/rebase. GitHub/báo cáo cuối còn chờ người dùng chốt; không tự push.
 
 ```text
 Commit 1: feat: milestone 1 - LinhChat, PostgreSQL and Nginx

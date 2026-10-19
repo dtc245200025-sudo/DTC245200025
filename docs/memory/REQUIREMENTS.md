@@ -31,3 +31,5 @@ Mẫu Profile gợi ý trạng thái Bận/Vắng mặt, số phòng đã tham g
 ## Cách làm việc và báo cáo
 
 Làm hộ và kiểm tra trong môi trường sẵn có. Sau từng giai đoạn gửi kết quả kiểm tra, chỉ rõ khi nào chụp/đoạn nào và một đoạn ngắn mô tả tạo bằng công cụ gì. Người dùng chụp trực tiếp trong Ubuntu để viết báo cáo tổng 10–15 trang. Hạn chế ảnh lặp, dùng Hình X khi chưa biết số cuối. Không sửa Demo.docx hoặc tạo nội dung khẳng định hoàn thành trước kiểm thử. Chưa có yêu cầu push GitHub/PR.
+
+Ngày19/10 người dùng xác nhận đã chụp GĐ7, báo cáo đã đến **Hình12**; ảnh mới GĐ8 phải là **Hình13**, không dùng HìnhX hoặc đánh lại các ảnh trước khi chưa xem bản báo cáo cuối.
