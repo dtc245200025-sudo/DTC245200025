@@ -90,9 +90,9 @@
 - [x] Script bàn giao runtime/schema/hardening/5UP/11panel/3LogQL/3mốc chạy đạt trên VM; không tạo dữ liệu mới/không chạy lại logout lúc chụp.
 - [x] Chạy lại152/152pytest trong63.25s bằng container cùngimageapp, khôngnetwork/.env/DBvolume; không thay test SQLite bằng tuyên bố kiểm thử PostgreSQL.
 - [x] Tài liệu/source đồng bộ Windows/VM, ZIP khôngsecret; commitdocs riêng, khôngrewrite3mốc/chưapush.
-- [ ] Người dùng xác nhận đã chụpHình13 (GIAI_DOAN_8_LOCAL_OK).
+- [x] Người dùng xác nhận đã chụp Hình13 (GIAI_DOAN_8_LOCAL_OK).
 - [ ] Đánh lại số hình trùng khi người dùng hoàn thiện báo cáo; chưa tự sửa Demo.docx.
-- [ ] Chốt repository GitHub theo mã sinh viên và push03mốc trước nộp; hiện chưa có remote, không tự tạo/push.
+- [ ] Repository GitHub theo mã sinh viên và push03mốc trước nộp: **người dùng tự thực hiện theo yêu cầu mới nhất**, chưa xác minh đã push; không tự tạo/push thay.
 
 ## Không tự mở rộng
 

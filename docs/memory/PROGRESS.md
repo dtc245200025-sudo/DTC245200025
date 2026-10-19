@@ -1,5 +1,10 @@
 # Tiến trình và bằng chứng
 
+## Sau GĐ8 — người dùng đã chụp Hình13, tự push GitHub
+
+- Người dùng xác nhận đã chụp Hình13 và yêu cầu tự push GitHub. Đã ghi vào mục tiêu/checklist; chưa xác minh push/nộp bài, không tự thực hiện thay. Báo cáo Word cuối vẫn chưa sửa/kiểm tra dàn trang.
+- VM đang có chỉnh sửa của người dùng ở scripts/check-phase8.sh và tests/verify_delivery.py so với commitfc8bb5d; giữ nguyên, không ghi đè hoặc tự commit. Chỉ đồng bộ các file trí nhớ, không đổi source ứng dụng, không restart/test lại hoặc tạo commit mới trong lần xác nhận này. Bản ZIP đã tạo trước đó chưa chứa các chỉnh sửa riêng mới này.
+
 ## 19/10/2026 — bắt đầu GĐ8 sau Hình12
 
 Người dùng gửi ảnh GĐ7 đủ HARDENING_INFRA_OK/GIAI_DOAN_7_OK và xác nhận đã đến Hình12; ảnh mới là Hình13. Đã đọc trí nhớ/lộ trình, xác minh Windows/VM cùng commitf578318 và trackedclean,11service đang chạy. Đang bổ sung kiến trúc/mô hình10bảng, kịch bảndemo5–7phút, guideGĐ8 vàscriptkiểmtrabàngiaođọc runtime; test-unit riêng dùngcontainer tạm khôngnetwork/.env/volumeDB. Không sửa app/DB, không push/GitHub hoặc sửaWord. Bàn giaoGitHub và số trang Word cuối vẫn cần người dùng chốt, không coi localOK là đã nộp.

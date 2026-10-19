@@ -19,6 +19,10 @@ Cập nhật: 19/10/2026. Người dùng yêu cầu lưu toàn bộ ý tưởng,
 - Người dùng đã chụp GĐ7, gửi ảnh hợp lệ và xác nhận **đến Hình12, ảnh tiếp theo Hình13** ngày19/10. **GĐ8 phần cục bộ đã kiểm tra đạt**: kiến trúc/10bảng, demo5–7phút, README, guideHình13 vàscriptbàngiao; chạy lại152testtrong63.25s với container khôngnetwork/.env/DBvolume. `bash scripts/check-phase8.sh` xácnhậnruntime/schema/hardening/5UP/11panel/3LogQL/3mốc. Chờ người dùng chụpHình13; GitHub/MSSV vàWordcuối10–15trang chưa chốt, khônggọiđã nộp/chưapush. Tài liệuGĐ8lưucommitriêng, khôngđổiba mốc. HTTPkhôngTLS vàngoạilệcAdvisor/Promtail giữrõ.
 - Người dùng muốn làm thực tế, không chỉ hướng dẫn. Sau mỗi giai đoạn: thông báo kết quả, chỉ màn hình cần chụp và cho chú thích/đoạn báo cáo ngắn. Tổng báo cáo 10–15 trang.
 
+### Bàn giao mới nhất sau Hình13
+
+Người dùng đã xác nhận **đã chụp Hình13** và yêu cầu **tự push GitHub**. Không tạo repository/remote/PR hoặc push thay người dùng. GĐ8 phần cục bộ và minh chứng đã xong; GitHub do người dùng thực hiện, chưa xác minh đã push/nộp bài. Báo cáo Word cuối chưa sửa/kiểm tra dàn trang. Kiểm tra VM thấy người dùng đang sửa `scripts/check-phase8.sh` và `tests/verify_delivery.py`; giữ nguyên, không chép đè hoặc tự commit các chỉnh sửa này. Lần xác nhận này chỉ cập nhật file trí nhớ, không chạy lại test hoặc tạo commit mới.
+
 ## Môi trường và cách truy cập
 
 - Máy thật Windows, workspace hiện tại là repository này. Runtime shell PowerShell; source đích `/home/hoanglinh/projects/de32-chat` trên Ubuntu 24.04 VMware, user `hoanglinh`, IP được cung cấp `192.168.203.131`, SSH 22. Kiểm tra lại trước khi dùng vì IP có thể đổi.

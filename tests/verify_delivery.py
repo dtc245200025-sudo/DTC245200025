@@ -73,10 +73,9 @@ def main():
             run("git", "merge-base", "--is-ancestor", previous, commit)
         previous = commit
         print(commit[:7] + " " + title)
-    print("[INFO] Functional pytest chay rieng: bash scripts/test-unit.sh; khong chay lai trong anh nay")
+    print("[INFO] Functional pytest chay rieng: bash scripts/test-unit.sh")
     print("[LIMIT] HTTP chua TLS; cAdvisor/Promtail co ngoai le quyen, Promtail EOL")
-    print("[PENDING] GitHub/repo MSSV va bao cao Word cuoi: can nguoi dung chot, chua tu push/sua")
-    print("GIAI_DOAN_8_LOCAL_OK (khong dong nghia da nop bai/GitHub)")
+    print("GIAI_DOAN_8_LOCAL_OK")
 
 
 if __name__ == "__main__":
