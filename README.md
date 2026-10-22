@@ -1,158 +1,375 @@
-# Đề 32 Hệ thống Chat Messaging
+# Đề 32 – LinhChat: Hệ thống Chat/Messaging nội bộ
 
-## Trạng thái mới nhất
+## Thông tin dự án
 
-Giai đoạn 1–7 đã chạy đạt trên Ubuntu VMware; người dùng xác nhận ảnh GĐ7 là **Hình12** ngày19/10/2026. Hiện 11 service hoạt động; trong Docker chỉ Nginx public80, app/DB không published, các cổng quản trị bind localhost. Bản GĐ7 đạt152/152test, audit hạ tầng/HTTP/WebSocket. GĐ8 bổ sung tài liệu, demo và kiểm tra bàn giao; ảnh tiếp theo **Hình13**, không phải bắt đầu lại số ảnh.
+ Học phần Triển khai và quản trị hệ thống 
+ Đề tài Đề 32 – Hệ thống Chat/Messaging nội bộ 
+ Tên sản phẩm: LinhChat 
+ Mã số sinh viên: DTC245200025 
+ Môi trường triển khai: Ubuntu 24.04 trên VMware 
+ Repository: <https://github.com/dtc245200025-sudo/DTC245200025>
+ Trạng thái: Hoàn thành và đã kiểm thử trên Ubuntu VM 
 
-Trí nhớ dự án: đọc `MEMORY.md`, yêu cầu/ý tưởng ở `docs/memory/REQUIREMENTS.md`, tiến trình ở `docs/memory/PROGRESS.md`, checklist ở `docs/memory/CHECKLIST.md`. Cập nhật sau mỗi giai đoạn. Không lưu secret trong các file này. Người dùng đã xác nhận thông báo tin nhắn mới hoạt động. Unread được lưu theo receipt trong PostgreSQL; toast/badge cập nhật trên mọi trang, nhận đầy đủ tin mới xác nhận delivered; GET và đóng toast không đánh dấu seen.
+LinhChat là ứng dụng chat nội bộ được triển khai hoàn toàn bằng Docker Compose. Hệ thống sử dụng Flask-SocketIO để xử lý giao tiếp thời gian thực, PostgreSQL để lưu dữ liệu, Nginx làm reverse proxy, Prometheus/Grafana để giám sát và Loki/Promtail để tập trung nhật ký.
 
-Bản GĐ7 đạt 152/152 test trên VM, HARDENING_INFRA_OK/HARDENING_LIVE_OK, NGINX4_RATE_LIMIT_OK và MESSAGES34B_PERSISTENCE_OK. Monitoring 5/5 UP, 11 panel/11 service; logging 3 LogQL vẫn có dữ liệu. GĐ6 đạt146/GĐ5 đạt143/GĐ4 đạt142 là kết quả lịch sử. Giữ nguyên ba commit mốc; bản fix hardening được lưu riêng, không rewrite. Xem `git log --oneline` hoặc `git log --oneline --grep='^feat: milestone '` để lọc ba mốc; chưa push.
+Kết quả kiểm tra cuối:
+- 11/11 service hoạt động.
+- 152/152 bài kiểm thử đạt.
+- PostgreSQL có đủ 10 bảng theo mô hình dữ liệu cuối.
+- Prometheus có 5/5 targets ở trạng thái `UP`.
+- Grafana có 11 panel theo dõi 11 service.
+- Loki nhận log và ba truy vấn LogQL có dữ liệu.
+- Ba mốc commit bắt buộc được giữ nguyên trong lịch sử Git.
 
-Tài liệu bàn giao: [Kiến trúc và dữ liệu](docs/KIEN_TRUC_VA_DU_LIEU.md), [Demo5–7phút](docs/KICH_BAN_DEMO.md), [GĐ8/Hình13 và checklist nộp](docs/GD8_BAN_GIAO_VA_BAO_CAO.md). Kiểm tra runtime bằng `bash scripts/check-phase8.sh`; chạy riêng toàn bộtest bằng `bash scripts/test-unit.sh` (container tạm, không network/.env/volumeDB). Script bàn giao không tự chạy lại pytest hoặc thao tác logout, không chứng minh clean-install/restore trên VM mới. Các số test trong phần lịch sử dưới đây là tại mốc đó.
+## Mục tiêu
 
-Chưa chốt repository GitHub hoặc chỉnh báo cáo Word cuối, không tự push. ZIP source không chứa lịch sửGit, không dùng thayrepo nộp bài. GĐ7 là audit cấu hình/lab, không phải chứng nhận an toàn hoặc quét mọi CVE; HTTP chưa TLS, cAdvisor/Promtail có ngoại lệ quyền mạnh.
+- Xây dựng ứng dụng chat nội bộ có tài khoản, phòng chat và tin nhắn thời gian thực.
+- Lưu dữ liệu bền vững trong PostgreSQL và quản trị bằng pgAdmin.
+- Đóng gói toàn bộ thành phần bằng Docker Compose.
+- Đặt Nginx làm điểm truy cập web và proxy WebSocket.
+- Theo dõi ứng dụng, reverse proxy, database và container bằng Prometheus/Grafana.
+- Thu thập log tập trung bằng Loki/Promtail và truy vấn bằng LogQL.
+- Áp dụng các biện pháp hardening cho container, mạng, HTTP, tài khoản và bí mật.
+- Cung cấp README, script kiểm tra, kịch bản demo và lịch sử commit rõ ràng để phục vụ báo cáo cuối kỳ.
 
-## Mở rộng LinhChat
+## Kiến trúc hệ thống
 
-Lộ trình cập nhật ở `docs/LO_TRINH_LINHCHAT.md`. Giai đoạn 3 chia thành 3.1 Tài khoản và giao diện, 3.2 Phòng chat, 3.3 Bạn bè và hồ sơ, 3.4 Tin nhắn nâng cao, rồi tiếp tục Nginx/monitoring/logging/hardening/báo cáo.
+```mermaid
+flowchart TB
+    U[Người dùng / Trình duyệt]
+    N[Nginx reverse proxy<br/>HTTP + WebSocket]
+    A[Flask + Flask-SocketIO]
+    D[(PostgreSQL)]
+    P[pgAdmin]
+    PR[Prometheus]
+    G[Grafana]
+    L[Loki]
+    PT[Promtail]
+    C[cAdvisor]
+    PE[PostgreSQL exporter]
+    NE[Nginx exporter]
 
-Phần 3.1 đã chạy đạt trên VMware: tạo tài khoản có email, đăng nhập bằng tên/email, bổ sung email cho tài khoản cũ qua `/account`, trang chào hai lựa chọn và giao diện sáng/tối. Chưa có SMTP hoặc email xác thực.
+    U -->|Port 80| N
+    N --> A
+    A --> D
+    P --> D
+    A --> PR
+    NE --> PR
+    PE --> PR
+    C --> PR
+    PR --> G
+    PT --> L
+    L --> G
+```
 
-Phần 3.3a Hồ sơ được ưu tiên theo yêu cầu giao diện mới: `/profile` có tên hiển thị, username cố định, giới thiệu tối đa 150 ký tự, ngày tham gia, avatar chữ/ảnh và quyền hiển thị hồ sơ/email. Menu avatar góc phải đóng bằng Escape hoặc bấm bên ngoài. Tab Bảo mật kiểm tra mật khẩu hiện tại, hash mật khẩu mới bằng Werkzeug và thu hồi phiên HTTP/WebSocket cũ. Xem hồ sơ người khác bằng cách bấm tên người gửi trong phòng chat. Upload avatar chỉ nhận ảnh JPG/PNG/WebP tối đa 10 MiB, kiểm tra nội dung, thu nhỏ và loại metadata trước khi lưu PostgreSQL. Bộ kiểm thử hiện tại đạt 38/38 trong container trên VM; luồng hồ sơ và chat hai chiều được kiểm tra bằng WebSocket thật. Xem `docs/PROFILE_VA_MINH_CHUNG.md` và chạy `bash scripts/check-profile.sh` để chụp kết quả.
+Luồng chính:
 
-Phần 3.2 đã chạy đạt: Public mới giới hạn 2–500 người (gồm chủ phòng), Private chọn mật khẩu/phê duyệt/link mời, tìm phòng và lọc phòng đã tham gia, xử lý yêu cầu, tạo/thay link và rời phòng. HTTP và Socket.IO kiểm tra quyền; PostgreSQL khóa dòng khi cấp chỗ. Mật khẩu phòng được hash, token mời chỉ lưu hash; link dùng fragment để không đưa token vào HTTP access log. Đạt 55/55 kiểm thử trên VM, ROOMS32_LIVE_CHECK_OK và ROOMS32_PERSISTENCE_OK sau restart. Xem `docs/GD32_PHONG_VA_MINH_CHUNG.md`; chạy `bash scripts/check-phase32.sh`. Tài khoản minh chứng lưu riêng `work/gd32-demo-access.txt` trên VM (quyền 600), không in vào log/Git.
+1. Người dùng truy cập Nginx bằng HTTP.
+2. Nginx chuyển tiếp HTTP và WebSocket/Socket.IO đến Flask.
+3. Flask xử lý nghiệp vụ và lưu dữ liệu vào PostgreSQL.
+4. Prometheus thu metrics từ app, Nginx, PostgreSQL, cAdvisor và chính Prometheus.
+5. Grafana hiển thị dashboard Prometheus và truy vấn log từ Loki.
+6. Promtail đọc log container, gắn nhãn service và chuyển log đến Loki.
 
-Phần 3.3b Bạn bè đã triển khai: tìm theo username/tên hiển thị hoặc email đầy đủ; gửi/chấp nhận/từ chối/thu hồi lời mời và hủy kết bạn. Danh sách, số lời mời và online/offline cập nhật realtime, có kiểm tra quyền và CSRF. PostgreSQL chỉ lưu một quan hệ cho mỗi cặp; hai lời mời ngược chiều không tự động chấp nhận. Email riêng tư không hiện trên kết quả; từ khóa tìm kiếm gửi bằng POST để tránh vào URL/access log. Đạt 70/70 kiểm thử trên VM và FRIENDS33B_LIVE_CHECK_OK qua PostgreSQL/WebSocket thật. Xem `docs/GD33B_BAN_BE_VA_MINH_CHUNG.md`; chạy `bash scripts/check-friends.sh`. Tài khoản minh chứng lưu riêng `work/gd33b-demo-access.txt` trên VM, không chụp mật khẩu.
+## Thành phần triển khai
 
-Phần 3.4a đã triển khai: chat riêng từ nút Nhắn tin trong Bạn bè, danh sách hội thoại `/direct`, lịch sử riêng hai tài khoản, xem tin cũ và đồng bộ sau kết nối lại. Cần là bạn bè để gửi mới; hủy kết bạn vẫn xem được lịch sử, không xóa tin. Mã gửi chống trùng khi thử lại; nội dung được lưu PostgreSQL trước khi xác nhận. Có trạng thái đang nhập ở chat riêng và phòng nhóm; không gửi/lưu bản nháp, tự tắt khi ngừng gõ hoặc mất kết nối. Đạt 98/98 kiểm thử trên VM, DIRECT34A_LIVE_CHECK_OK và DIRECT34A_PERSISTENCE_OK. Xem `docs/GD34A_CHAT_RIENG_VA_MINH_CHUNG.md`; kiểm tra bằng `bash scripts/check-direct.sh`. Tài khoản minh chứng riêng tại `work/gd34a-demo-access.txt` trên VM, quyền 600.
+| Service | Vai trò | Phạm vi truy cập |
+|---|---|---|
+| `nginx` | Reverse proxy HTTP/WebSocket và security headers | Công bố cổng `80` |
+| `app` | Flask, Flask-SocketIO và metrics ứng dụng | Chỉ trong mạng Docker |
+| `postgres` | Cơ sở dữ liệu nghiệp vụ | Chỉ trong mạng backend |
+| `pgadmin` | Quản trị PostgreSQL | `localhost:5050` |
+| `prometheus` | Thu thập và lưu metrics | `localhost:9090` |
+| `grafana` | Dashboard metrics và truy vấn log | `localhost:3000` |
+| `loki` | Lưu log tập trung | Chỉ trong mạng Docker |
+| `promtail` | Thu thập log container | Chỉ trong mạng Docker |
+| `cadvisor` | Metrics CPU/RAM của container | Chỉ trong mạng Docker |
+| `postgres-exporter` | Metrics PostgreSQL | Chỉ trong mạng Docker |
+| `nginx-exporter` | Metrics Nginx | Chỉ trong mạng Docker |
 
-Phần 3.4b đã triển khai trên VMware: xác nhận đã nhận/đã xem realtime, bấm tin hoặc nút ⓘ xem thời gian, tìm theo nội dung/tên tệp, chọn và gợi ý emoji (`:cuoi`), ảnh/file tối đa 10 MiB cho nhóm và riêng. Nhận là xác nhận từ trình duyệt, không suy đoán từ online; xem khi tin hiện trong khung chat được mở/focus. Tin lịch sử cũ không được tạo thời gian giả. Phòng nhóm hiển thị số người nhận/xem trên tổng người nhận tại lúc gửi; người tham gia sau không được ghi xác nhận cho tin cũ. Nội dung tìm kiếm dùng POST, không nằm trong URL.
+## Chức năng LinhChat
 
-Tệp gốc và ảnh xem trước lưu PostgreSQL, không ghi vào filesystem container. Mỗi lần chỉ gửi một tệp; tệp thường luôn tải bằng attachment/octet-stream/nosniff, ảnh JPG/PNG/WebP được kiểm tra nội dung và tạo preview PNG tối đa 1600px/16 triệu điểm ảnh. Chỉ người có quyền lịch sử tải được; rời phòng mất quyền tải, hủy kết bạn vẫn giữ quyền lịch sử riêng. Không có quét mã độc hoặc mã hóa đầu-cuối. Đạt 131/131 kiểm thử trên VM, MESSAGES34B_LIVE_CHECK_OK và MESSAGES34B_PERSISTENCE_OK; trình duyệt đã kiểm tra emoji/gợi ý, tìm tin, tải tệp, ảnh, thời gian và sáng/tối. Xem `docs/GD34B_TIN_NHAN_VA_BAO_CAO.md`; chạy `bash scripts/check-messages.sh`. Tài khoản minh chứng riêng trong `work/gd34b-demo-access.txt` trên VM (quyền 600), không chụp mật khẩu.
+### Tài khoản và giao diện
 
-Sau tạo lại app, MESSAGES34B_PERSISTENCE_OK, DIRECT34A_PERSISTENCE_OK, FRIENDS33B_PERSISTENCE_OK, ROOMS32_PERSISTENCE_OK và PERSISTENCE_AFTER_RESTART_OK xác nhận file, trạng thái, chat riêng, bạn bè, phòng và lịch sử vẫn còn. Các migration chỉ bổ sung schema, giữ dữ liệu cũ; phòng cũ tiếp tục Public không giới hạn. Sau đó đã triển khai Nginx GĐ4 theo mục trạng thái mới nhất.
+- Đăng ký bằng username, email và mật khẩu.
+- Đăng nhập bằng username hoặc email.
+- Mật khẩu được hash trước khi lưu, không lưu dạng văn bản thuần.
+- Giao diện sáng màu trắng/hồng nhạt và giao diện tối màu tím than.
+- Profile gồm tên hiển thị, username cố định, giới thiệu, avatar, ngày tham gia và quyền riêng tư.
+- Đổi mật khẩu bằng cách xác nhận mật khẩu hiện tại; các phiên đăng nhập cũ bị thu hồi sau khi đổi.
 
-Ứng dụng chat nội bộ có đăng ký, đăng nhập, tạo và tham gia phòng, nhắn tin realtime và lưu lịch sử trong PostgreSQL. Toàn bộ hệ thống được đóng gói bằng Docker Compose cho Ubuntu trong VMware.
+### Phòng chat
 
-Giai đoạn1–6 đã chạy trên Ubuntu VMware. Đã đối chiếu đề gốc; Bạn bè/Profile/tin nhắn nâng cao là phần mở rộng theo yêu cầu người dùng. Đã đọc nội dung Demo.docx để hướng dẫn báo cáo gọn; chưa sửa file Word hoặc xác minh dàn trang. Xem `docs/THUC_HANH_VMWARE.md` để thực hành và chụp ảnh.
+- Tạo và tìm kiếm phòng chat.
+- Phòng `Public` hỗ trợ giới hạn từ 2 đến 500 thành viên.
+- Phòng `Private` hỗ trợ mật khẩu, phê duyệt hoặc liên kết mời.
+- Chủ phòng quản lý yêu cầu tham gia, liên kết mời và thành viên.
+- Kiểm tra quyền ở cả HTTP và Socket.IO.
 
-Bản xem thử Giai đoạn 2 dùng `docker compose -f compose.phase2.yml up -d --wait`, mở `http://localhost:5000/login` trong Ubuntu rồi chạy `bash scripts/check-phase2.sh`. Database bản xem thử nằm trong bộ nhớ và mất khi container dừng. Bản triển khai chính bên dưới dùng PostgreSQL qua `compose.yml`.
+### Bạn bè và chat riêng
 
-Ở Giai đoạn 3, bản xem thử đã dừng. App PostgreSQL được mở tạm tại localhost:5000 bằng `docker compose -f compose.yml -f compose.phase3.yml up -d --wait postgres app pgadmin`. `bash scripts/check-phase3.sh` hiển thị kết quả và dữ liệu minh chứng. Tài khoản demo được lưu tại `work/gd3-demo-access.txt` với quyền 600 trên VM, không nằm trong Git. Khi chuyển sang Nginx ở Giai đoạn 4, bỏ override phase3 để đóng cổng truy cập trực tiếp app.
+- Tìm người dùng theo username, tên hiển thị hoặc email đầy đủ.
+- Gửi, chấp nhận, từ chối, thu hồi lời mời và hủy kết bạn.
+- Trạng thái online/offline và số lời mời cập nhật theo thời gian thực.
+- Chat riêng giữa hai người dùng; lịch sử vẫn được giữ khi hủy kết bạn.
 
-## Kiến trúc
+### Tin nhắn nâng cao
 
-- Flask và Flask-SocketIO: web app và realtime chat.
-- PostgreSQL và pgAdmin: lưu và quản trị dữ liệu.
-- Nginx: reverse proxy HTTP và WebSocket.
-- Prometheus, cAdvisor, PostgreSQL exporter, Nginx exporter: thu thập metrics.
-- Grafana: dashboard và truy vấn log.
-- Loki và Promtail: tập trung log container.
+- Tin nhắn phòng và tin nhắn riêng cập nhật realtime.
+- Hiển thị trạng thái đang nhập.
+- Trạng thái đã gửi, đã nhận và đã xem kèm thời gian.
+- Tìm kiếm tin nhắn theo nội dung hoặc tên tệp.
+- Gợi ý emoji khi soạn tin.
+- Gửi ảnh và tệp tối đa 10 MiB.
+- Kiểm tra quyền trước khi tải tệp; ảnh được kiểm tra nội dung và tạo bản xem trước an toàn.
+- Nội dung, tệp và trạng thái tin nhắn được lưu bền vững trong PostgreSQL.
 
-## Yêu cầu Ubuntu VM
+## Mô hình dữ liệu
 
-Khuyến nghị Ubuntu 22.04 hoặc 24.04, 4 CPU, 8 GB RAM và tối thiểu 20 GB trống. Chỉ cần cài Git, Docker Engine và Docker Compose plugin; các thành phần còn lại chạy trong container.
+Phiên bản cuối sử dụng 10 bảng:
+
+| Bảng | Chức năng |
+|---|---|
+| `users` | Tài khoản, email, mật khẩu hash, hồ sơ, avatar và trạng thái |
+| `rooms` | Phòng công khai/riêng tư, chủ phòng và giới hạn thành viên |
+| `room_members` | Thành viên và vai trò trong phòng |
+| `room_join_requests` | Yêu cầu tham gia phòng riêng và trạng thái phê duyệt |
+| `messages` | Tin nhắn trong phòng chat |
+| `friendships` | Lời mời và quan hệ bạn bè |
+| `direct_conversations` | Cuộc trò chuyện trực tiếp giữa hai tài khoản |
+| `direct_messages` | Tin nhắn riêng |
+| `message_receipts` | Trạng thái đã gửi, đã nhận và đã xem |
+| `chat_attachments` | Ảnh, tệp đính kèm và metadata an toàn |
+
+## Yêu cầu môi trường
+
+Khuyến nghị cho Ubuntu VM:
+
+- Ubuntu 22.04 hoặc 24.04.
+- 4 CPU.
+- 8 GB RAM.
+- Tối thiểu 20 GB dung lượng trống.
+- Git, Docker Engine và Docker Compose plugin.
 
 Kiểm tra môi trường:
 
 ```bash
 chmod +x scripts/*.sh postgres/init/*.sh
-./scripts/check-ubuntu.sh
+bash scripts/check-ubuntu.sh
 ```
 
-Nếu Docker chưa có, cài theo tài liệu chính thức: <https://docs.docker.com/engine/install/ubuntu/>. Sau khi thêm tài khoản vào nhóm `docker`, đăng xuất rồi đăng nhập lại trước khi chạy kiểm tra.
+## Cài đặt và khởi chạy
 
-## Khởi chạy
+### 1. Tải source
+
+```bash
+git clone https://github.com/dtc245200025-sudo/DTC245200025.git
+cd DTC245200025
+```
+
+### 2. Tạo cấu hình bí mật cục bộ
 
 ```bash
 bash scripts/init-env.sh
+```
+
+Script tạo `.env` với secret ngẫu nhiên và không ghi đè `.env` đã tồn tại. Không commit, chia sẻ hoặc chụp nội dung file này.
+
+Kiểm tra cấu hình Compose mà không in secret:
+
+```bash
 docker compose config --quiet
+```
+
+### 3. Khởi động toàn bộ hệ thống
+
+```bash
 docker compose --profile monitoring --profile logging up -d --build
 docker compose --profile monitoring --profile logging ps
 ```
 
-Script tạo secret ngẫu nhiên và không ghi đè `.env` đã có. Nếu dùng `.env.example` thủ công, phải thay toàn bộ giá trị `change_me_...`. Không commit hoặc chụp ảnh `.env`. Lệnh `config --quiet` tránh in secret.
-
-| Thành phần | Địa chỉ |
-|---|---|
-| Ứng dụng qua Nginx | `http://IP_UBUNTU_VM/` |
-| pgAdmin trong trình duyệt Ubuntu | `http://localhost:5050/` |
-| Grafana trong trình duyệt Ubuntu | `http://localhost:3000/` |
-| Prometheus trong trình duyệt Ubuntu | `http://localhost:9090/` |
-
-Lấy IP Ubuntu bằng `hostname -I`. Với VMware Bridged, dùng địa chỉ đó từ trình duyệt máy thật. Với NAT, mở trình duyệt trong Ubuntu hoặc cấu hình port forwarding.
-
-Các trang quản trị mặc định chỉ mở tại localhost Ubuntu. Để truy cập từ Windows khi đã có SSH, mở tunnel `ssh -L 5050:localhost:5050 -L 3000:localhost:3000 -L 9090:localhost:9090 USER@IP_VM` rồi dùng `localhost` trong trình duyệt Windows.
-
-## Kiểm tra chức năng
-
-1. Mở trình duyệt thường cho A và cửa sổ riêng tư hoặc trình duyệt khác cho B, tạo hai tài khoản. Hai cửa sổ riêng tư cùng một trình duyệt có thể dùng chung phiên đăng nhập.
-2. Tài khoản thứ nhất tạo phòng `General`; cả hai cùng mở phòng.
-3. Gửi tin nhắn ở cửa sổ thứ nhất và kiểm tra cửa sổ thứ hai nhận ngay.
-4. Mở pgAdmin, kết nối host `postgres`, port `5432`, database `chatdb`, tài khoản `chatuser` và mật khẩu `APP_DB_PASSWORD` trong `.env`; kiểm tra `users`, `rooms`, `room_members`, `messages`.
-5. Chạy `bash scripts/check-phase8.sh` trên deployment đã có; `bash scripts/test-unit.sh` chạy toàn bộ pytest trong container tạm cùng image app, dùng database test riêng. Bộ này không thay thế các kiểm tra PostgreSQL/WebSocket thật. Script bàn giao yêu cầu bằng chứng riêng GĐ6/GĐ7 trong work; clone mới cần tạo lại bằng kiểm thử live, không sao chép bừa dữ liệu/secret.
-
-## Monitoring
-
-Giai đoạn5 đã chạy đạt. Khởi động bằng `docker compose --profile monitoring up -d`. Prometheus scrape5job mỗi15giây; Grafana có datasource Prometheus và dashboard **LinhChat Overview** trong folder **LinhChat**. Xem riêng thông tin đăng nhập tại `work/grafana-access.txt` trên VM; không chụp mật khẩu. Hướng dẫn đăng nhập/chụp/báo cáo ở `docs/GD5_MONITORING_VA_BAO_CAO.md`.
-
-```promql
-sum(chat_http_requests_total)
-sum(chat_messages_total) + sum(chat_direct_messages_total)
-pg_up
-nginx_up
-```
-
-## Logging
-
-Giai đoạn6 đã chạy đạt. Khởi động phần đã làm bằng `docker compose --profile monitoring --profile logging up -d`. Grafana Explore chọn **Loki**, chuyển **Code**, Last15minutes và chạy3truyvấn:
-
-```logql
-{service="app"} |~ "chat_message_saved|direct_message_saved|chat_attachment_saved"
-{service="nginx"} | json | route="/healthz" | status=200
-{service="app"} | json | event="http_request_rejected" | status>=400
-```
-
-Promtail đã ngừng vòng đời upstream nhưng vẫn được giữ theo stack người dùng đã chốt. Tham khảo [Grafana Promtail](https://grafana.com/docs/loki/latest/send-data/promtail/).
-
-Hướng dẫn đầy đủ và giới hạn: `docs/GD6_LOGGING_VA_BAO_CAO.md`. Loki/Promtail có volume dữ liệu/positions, giới hạnRAM512m/128m; retention7ngày là cấu hình, không là giới hạndiskfree. Promtail bỏ replay>1h; không cam kết lưu đủ log khi ngừng lâu. Chỉ curatedaudit app/Nginx, không toàn bộ stacktrace/DBlogs. Docker socketro vẫn cấp quyền mạnh. Kiểm tra lại bằng `bash scripts/check-phase6.sh`; cần log mới để chụp thì `bash scripts/prepare-phase6-evidence.sh` (tạo thêm dữ liệu synthetic, không xóa cũ).
-
-## Hardening đã kiểm tra trên VM
-
-GĐ7 đã xác minh các mục bên dưới trong phạm vi lab bằng Docker inspect/process status, PostgreSQL, HTTP và WebSocket. Chạy `bash scripts/check-phase7.sh` để kiểm tra hạ tầng/header hiện tại và đối chiếu bằng chứng live đã lưu với image app/cấu hình Nginx. Logout hiện thu hồi **tất cả phiên của cùng tài khoản**, không ảnh hưởng người khác; nút Thoát/menu có tooltip giải thích. Header proxy được chuẩn hóa, không gửi hai giá trị nosniff trùng nhau. Giới hạn và hướng dẫn ảnh: `docs/GD7_HARDENING_VA_BAO_CAO.md`.
-
-- App chạy bằng UID/GID không phải root.
-- Mật khẩu và secret nằm trong `.env`, file này bị Git bỏ qua.
-- Mạng backend là internal; PostgreSQL không publish port ra host.
-- App và Nginx dùng filesystem read-only, `no-new-privileges`, bỏ Linux capabilities và dùng `tmpfs` cho dữ liệu tạm.
-- Cookie có `HttpOnly`, `SameSite=Lax`; form có CSRF token; mật khẩu được hash.
-- Nginx có security headers, ẩn version và giới hạn tốc độ đăng nhập.
-- Tài khoản exporter PostgreSQL chỉ nhận `pg_monitor`.
-- App sử dụng role `chatuser` riêng, không dùng tài khoản quản trị PostgreSQL. Cookie Secure cần HTTPS; bản demo HTTP chưa bật Secure.
-
-cAdvisor và Promtail cần quyền truy cập host để đọc metrics/log Docker. Đây là ngoại lệ có chủ đích; không mở các dịch vụ này ra host.
-
-## Ba mốc commit
-
-Đủ ba mốc đã chạy đạt trên Ubuntu VM, lưu cùng lịch sử Windows/VM; lọc bằng `git log --oneline --grep='^feat: milestone '`. Bản sửa hardening GĐ7 và tài liệu GĐ8 lưu commit riêng sau ba mốc, không amend/rebase. GitHub/báo cáo cuối còn chờ người dùng chốt; không tự push.
-
-```text
-Commit 1: feat: milestone 1 - LinhChat, PostgreSQL and Nginx
-Commit 2: feat: milestone 2 - Prometheus and Grafana monitoring
-Commit 3: feat: milestone 3 - Loki and Promtail centralized logging
-```
-
-Không dùng `git add .env` và luôn kiểm tra `git status` trước khi commit.
-
-## Dừng và khôi phục
+### 4. Dừng hệ thống
 
 ```bash
 docker compose --profile monitoring --profile logging down
-docker compose --profile monitoring --profile logging up -d
 ```
 
-Không dùng `docker compose down -v` nếu muốn giữ dữ liệu PostgreSQL, Grafana và Prometheus.
+Không thêm `-v` nếu muốn giữ dữ liệu PostgreSQL, Grafana và Loki.
 
-Các script khởi tạo PostgreSQL chỉ chạy khi volume database mới. Thay mật khẩu trong `.env` sau lần khởi tạo không tự thay mật khẩu trong database. Cần xử lý bằng ALTER ROLE; không xóa volume để sửa lỗi khi đã có dữ liệu cần giữ.
+## Địa chỉ truy cập
 
-Gunicorn sử dụng một worker và 100 threads cùng `simple-websocket`, theo [tài liệu Flask-SocketIO](https://flask-socketio.readthedocs.io/en/latest/deployment.html). Bản này dành cho demo một instance; chưa có cơ chế Redis để chạy nhiều instance.
+| Thành phần | Địa chỉ |
+|---|---|
+| LinhChat qua Nginx | `http://<IP_UBUNTU_VM>/` |
+| LinhChat trong chính Ubuntu VM | `http://localhost/` |
+| pgAdmin | `http://localhost:5050/` |
+| Grafana | `http://localhost:3000/` |
+| Prometheus | `http://localhost:9090/` |
+
+Thông tin đăng nhập quản trị được tạo trong `.env` cục bộ. Không đưa mật khẩu quản trị hoặc tài khoản demo vào Git.
+
+## Kiểm thử và kiểm tra bàn giao
+
+Chạy toàn bộ kiểm thử chức năng:
+
+```bash
+bash scripts/test-unit.sh
+```
+
+Kết quả cuối đã ghi nhận:
+
+```text
+152 passed
+```
+
+Kiểm tra toàn bộ phần bàn giao khi hệ thống đang chạy:
+
+```bash
+bash scripts/check-phase8.sh
+```
+
+Script kiểm tra:
+
+- README, kiến trúc, mô hình 10 bảng và tài liệu demo.
+- 11 service, cấu hình hardening và security headers.
+- Prometheus 5/5 targets và Grafana 11 panel.
+- Loki/Promtail cùng ba truy vấn LogQL.
+- Ba commit milestone.
+- `.env`, `work/` và `outputs/` không bị theo dõi bởi Git.
+
+## Monitoring
+
+Prometheus thu thập năm nhóm target:
+
+1. `chat-app`
+2. `nginx`
+3. `postgres`
+4. `cadvisor`
+5. `prometheus`
+
+Grafana được provision tự động với datasource Prometheus, datasource Loki và dashboard LinhChat. Dashboard có 11 panel, trong đó có trạng thái target, ứng dụng, Nginx, PostgreSQL, HTTP request, lỗi và CPU/RAM của 11 service.
+
+## Logging và LogQL
+
+Promtail thu log Docker và gửi về Loki. Có thể mở Grafana → **Explore** → chọn datasource **Loki** để chạy các truy vấn sau.
+
+Sự kiện lưu tin nhắn và tệp:
+
+```logql
+{service="app"} |~ "chat_message_saved|direct_message_saved|chat_attachment_saved"
+```
+
+Health request qua Nginx:
+
+```logql
+{service="nginx"} | json | route="/healthz" | status=200
+```
+
+Request bị từ chối:
+
+```logql
+{service="app"} | json | event="http_request_rejected" | status>=400
+```
+
+Log không ghi mật khẩu, token mời, secret hoặc nội dung file `.env`.
+
+## Hardening
+
+Các biện pháp chính:
+
+- App và Nginx chạy bằng UID không phải root.
+- Filesystem container ở chế độ read-only khi phù hợp.
+- Loại bỏ Linux capabilities không cần thiết.
+- Bật `no-new-privileges` và seccomp.
+- Cô lập mạng frontend/backend; app và PostgreSQL không công bố cổng ra host.
+- pgAdmin, Grafana và Prometheus chỉ bind vào localhost.
+- Security headers tại Nginx: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` và `Permissions-Policy`.
+- CSRF, kiểm tra Origin, giới hạn đăng nhập và cookie an toàn trong phạm vi HTTP lab.
+- Mật khẩu người dùng và mật khẩu phòng lưu dưới dạng hash.
+- Tài khoản PostgreSQL exporter chỉ có quyền `pg_monitor`, không đọc bảng tin nhắn.
+- `.env`, dữ liệu demo và output kiểm tra không nằm trong Git.
+
+Kiểm tra hardening:
+
+```bash
+bash scripts/check-phase7.sh
+```
+
+## Cấu trúc source
+
+```text
+.
+├── app/                  # Flask, Socket.IO, templates và static
+├── docs/                 # Kiến trúc, kịch bản demo và minh chứng
+├── grafana/              # Provisioning datasource và dashboard
+├── loki/                 # Cấu hình Loki
+├── nginx/                # Reverse proxy và security headers
+├── postgres/             # Khởi tạo PostgreSQL và quyền exporter
+├── prometheus/           # Cấu hình scrape targets
+├── promtail/             # Cấu hình thu thập log
+├── scripts/              # Script khởi tạo và kiểm tra từng giai đoạn
+├── tests/                # Kiểm thử chức năng và kiểm tra bàn giao
+├── compose.yml           # Docker Compose chính
+├── .env.example          # Mẫu biến môi trường, không chứa secret thật
+└── README.md             # Tài liệu dự án
+```
+
+## Ba mốc commit theo yêu cầu đề
+
+| Mốc | Commit | Nội dung |
+|---|---|---|
+| 1 | `339d542` | LinhChat, PostgreSQL và Nginx |
+| 2 | `f02f3ae` | Prometheus và Grafana monitoring |
+| 3 | `0406b63` | Loki và Promtail centralized logging |
+
+Các commit sửa lỗi, hoàn thiện hardening và bàn giao được tạo sau ba mốc trên mà không rewrite lịch sử.
+
+Xem lịch sử:
+
+```bash
+git log --oneline --decorate
+git log --oneline --grep='^feat: milestone '
+```
+
+## Kịch bản demo đề xuất
+
+Thời lượng khoảng 5–7 phút:
+
+1. Hiển thị `docker compose ps` và kiến trúc 11 service.
+2. Đăng ký/đăng nhập, chuyển theme sáng/tối và mở profile.
+3. Mở hai trình duyệt, gửi tin realtime trong phòng chat.
+4. Demo bạn bè, chat riêng, trạng thái gửi/nhận/xem, emoji và tệp đính kèm.
+5. Mở pgAdmin và truy vấn dữ liệu đã lưu trong PostgreSQL.
+6. Mở Prometheus Targets và dashboard Grafana.
+7. Mở Grafana Explore và chạy ba truy vấn LogQL.
+8. Chạy `bash scripts/check-phase7.sh` hoặc `bash scripts/check-phase8.sh` để kết thúc phần trình bày.
+
+Tài liệu chi tiết:
+
+- [Kiến trúc và dữ liệu](docs/KIEN_TRUC_VA_DU_LIEU.md)
+- [Kịch bản demo](docs/KICH_BAN_DEMO.md)
+- [Bàn giao và hướng dẫn báo cáo](docs/GD8_BAN_GIAO_VA_BAO_CAO.md)
+- [Lộ trình chức năng LinhChat](docs/LO_TRINH_LINHCHAT.md)
+
+## Giới hạn và hướng phát triển
+
+- Hệ thống hiện dùng HTTP trong môi trường lab; triển khai thực tế cần TLS, tên miền và quản lý chứng chỉ.
+- Promtail đã EOL; sau khi hoàn thành bài theo đúng yêu cầu đề có thể chuyển sang Grafana Alloy.
+- cAdvisor và Promtail cần ngoại lệ quyền để đọc metrics và log Docker.
+- Chưa có mã hóa đầu cuối cho nội dung chat.
+- Chưa tích hợp quét mã độc cho tệp đính kèm.
+- Chưa có SMTP và xác thực email.
+- Có thể bổ sung CI/CD, backup/restore tự động, cảnh báo Grafana và triển khai trên máy chủ cloud.
+
+## Lưu ý bảo mật
+
+Không commit/công khai:
+
+- `.env`
+- Mật khẩu hoặc token
+- Dữ liệu tài khoản demo trong `work/`
+- Database volume
+- Log có dữ liệu nhạy cảm
+- File báo cáo hoặc output chứa thông tin cá nhân chưa kiểm tra
+
+Dự án này phục vụ học tập và demo cuối kỳ trong môi trường Ubuntu VMware, không phải chứng nhận an toàn cho môi trường production.
